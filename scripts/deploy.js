@@ -31,6 +31,6 @@ main().catch((error) => {
   process.exitCode = 1;
 });
 
-// npx hardhat run scripts/deploy.js --network goerli
+// npx hardhat run scripts/deploy.js --network tbsc
 // npx hardhat verify --network goerli `contractAddress` `args`
-// npx hardhat verify --network goerli `contractAddress` `args`
+// npx hardhat verify --network tbsc 0x2D4666b21FE316Bf4108Cd51F220BE5BDA16AB22 1678158361
