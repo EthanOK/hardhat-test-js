@@ -5,21 +5,40 @@ pragma experimental ABIEncoderV2;
 import "./ExchangeDomain.sol";
 import "./OwnableOperatorRole.sol";
 
-
 contract ExchangeState is OwnableOperatorRole {
-
     // keccak256(OrderKey) => completed
     mapping(bytes32 => uint256) public completed;
 
-    function getCompleted(ExchangeDomain.OrderKey calldata key) view external returns (uint256) {
+    function getCompleted(ExchangeDomain.OrderKey calldata key)
+        external
+        view
+        returns (uint256)
+    {
         return completed[getCompletedKey(key)];
     }
 
-    function setCompleted(ExchangeDomain.OrderKey calldata key, uint256 newCompleted) external onlyOperator {
+    function setCompleted(
+        ExchangeDomain.OrderKey calldata key,
+        uint256 newCompleted
+    ) external onlyOperator {
         completed[getCompletedKey(key)] = newCompleted;
     }
 
-    function getCompletedKey(ExchangeDomain.OrderKey memory key) pure public returns (bytes32) {
-        return keccak256(abi.encodePacked(key.owner, key.sellAsset.token, key.sellAsset.tokenId, key.buyAsset.token, key.buyAsset.tokenId, key.salt));
+    function getCompletedKey(ExchangeDomain.OrderKey memory key)
+        public
+        pure
+        returns (bytes32)
+    {
+        return
+            keccak256(
+                abi.encodePacked(
+                    key.owner,
+                    key.sellAsset.token,
+                    key.sellAsset.tokenId,
+                    key.buyAsset.token,
+                    key.buyAsset.tokenId,
+                    key.salt
+                )
+            );
     }
 }
