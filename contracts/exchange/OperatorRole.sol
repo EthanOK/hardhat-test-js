@@ -13,11 +13,13 @@ contract OperatorRole is Context {
 
     Roles.Role private _operators;
 
-    constructor () {
-    }
+    constructor() {}
 
     modifier onlyOperator() {
-        require(isOperator(_msgSender()), "OperatorRole: caller does not have the Operator role");
+        require(
+            isOperator(_msgSender()),
+            "OperatorRole: caller does not have the Operator role"
+        );
         _;
     }
 

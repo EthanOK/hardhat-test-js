@@ -53,7 +53,7 @@ contract NftExchange is Ownable, ExchangeDomain {
     );
 
     bytes4 private constant _INTERFACE_ID_FEES = 0xb7799584;
-    uint256 private constant UINT256_MAX = 2**256 - 1;
+    uint256 private constant UINT256_MAX = 2 ** 256 - 1;
 
     address payable public beneficiary;
     address public buyerFeeSigner;
@@ -98,17 +98,25 @@ contract NftExchange is Ownable, ExchangeDomain {
         uint256 amount,
         address buyer
     ) external payable {
+        // 验证订单签名
         validateOrderSig(order, sig);
+        // 验证 购买手续费 签名
         validateBuyerFeeSig(order, buyerFee, buyerFeeSig);
+        //
         uint256 paying = order.buying.mul(amount).div(order.selling);
+        // 验证购买数量与库存
         verifyOpenAndModifyOrderState(order.key, order.selling, amount);
+        // 不支持出售eth
         require(
             order.key.sellAsset.assetType != AssetType.ETH,
             "ETH is not supported on sell side"
         );
+        // 用eth购买
         if (order.key.buyAsset.assetType == AssetType.ETH) {
+            // 验证 msg.value 足量
             validateEthTransfer(paying, buyerFee);
         }
+
         FeeSide feeSide = getFeeSide(
             order.key.sellAsset.assetType,
             order.key.buyAsset.assetType
@@ -117,6 +125,7 @@ contract NftExchange is Ownable, ExchangeDomain {
             buyer = msg.sender;
         }
         /* SELL = accept, BUY = buy */
+        // 将NFT从出售者转到购买者
         transferWithFeesPossibility(
             order.key.sellAsset,
             amount,
@@ -127,6 +136,8 @@ contract NftExchange is Ownable, ExchangeDomain {
             order.sellerFee,
             order.key.buyAsset
         );
+
+        // 购买者支付token给出售者
         transferWithFeesPossibility(
             order.key.buyAsset,
             paying,
@@ -140,10 +151,10 @@ contract NftExchange is Ownable, ExchangeDomain {
         emitBuy(order, amount, buyer);
     }
 
-    function validateEthTransfer(uint256 value, uint256 buyerFee)
-        internal
-        view
-    {
+    function validateEthTransfer(
+        uint256 value,
+        uint256 buyerFee
+    ) internal view {
         uint256 buyerFeeValue = value.bp(buyerFee);
         require(msg.value == value + buyerFeeValue, "msg.value is incorrect");
     }
@@ -161,10 +172,10 @@ contract NftExchange is Ownable, ExchangeDomain {
         );
     }
 
-    function validateOrderSig(Order memory order, Sig memory sig)
-        internal
-        view
-    {
+    function validateOrderSig(
+        Order memory order,
+        Sig memory sig
+    ) internal view {
         if (sig.v == 0 && sig.r == bytes32(0x0) && sig.s == bytes32(0x0)) {
             require(ordersHolder.exists(order), "incorrect signature");
         } else {
@@ -191,19 +202,16 @@ contract NftExchange is Ownable, ExchangeDomain {
         );
     }
 
-    function prepareBuyerFeeMessage(Order memory order, uint256 fee)
-        public
-        pure
-        returns (string memory)
-    {
+    function prepareBuyerFeeMessage(
+        Order memory order,
+        uint256 fee
+    ) public pure returns (string memory) {
         return keccak256(abi.encode(order, fee)).toString();
     }
 
-    function prepareMessage(Order memory order)
-        public
-        pure
-        returns (string memory)
-    {
+    function prepareMessage(
+        Order memory order
+    ) public pure returns (string memory) {
         return keccak256(abi.encode(order)).toString();
     }
 
@@ -286,6 +294,7 @@ contract NftExchange is Ownable, ExchangeDomain {
         uint256 buyerFee,
         Asset memory secondType
     ) internal {
+        // 手续费 transfer to Beneficiary account
         uint256 restValue = transferFeeToBeneficiary(
             firstType,
             from,
@@ -293,6 +302,7 @@ contract NftExchange is Ownable, ExchangeDomain {
             sellerFee,
             buyerFee
         );
+        // 有二次销售费用
         if (
             (secondType.assetType == AssetType.ERC1155 &&
                 IERC1155(secondType.token).supportsInterface(
@@ -320,6 +330,7 @@ contract NftExchange is Ownable, ExchangeDomain {
                 transfer(firstType, current, from, recipients[i]);
             }
         }
+
         address payable toPayable = payable(to);
         transfer(firstType, restValue, from, toPayable);
     }
@@ -371,11 +382,10 @@ contract NftExchange is Ownable, ExchangeDomain {
         return subFee(value, total.bp(feeInBp));
     }
 
-    function subFee(uint256 value, uint256 fee)
-        internal
-        pure
-        returns (uint256 newValue, uint256 realFee)
-    {
+    function subFee(
+        uint256 value,
+        uint256 fee
+    ) internal pure returns (uint256 newValue, uint256 realFee) {
         if (value > fee) {
             newValue = value - fee;
             realFee = fee;
@@ -399,11 +409,10 @@ contract NftExchange is Ownable, ExchangeDomain {
         state.setCompleted(key, newCompleted);
     }
 
-    function getFeeSide(AssetType sellType, AssetType buyType)
-        internal
-        pure
-        returns (FeeSide)
-    {
+    function getFeeSide(
+        AssetType sellType,
+        AssetType buyType
+    ) internal pure returns (FeeSide) {
         if (
             (sellType == AssetType.ERC721 ||
                 sellType == AssetType.ERC721Deprecated) &&

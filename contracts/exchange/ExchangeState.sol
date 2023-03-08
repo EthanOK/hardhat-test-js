@@ -9,11 +9,9 @@ contract ExchangeState is OwnableOperatorRole {
     // keccak256(OrderKey) => completed
     mapping(bytes32 => uint256) public completed;
 
-    function getCompleted(ExchangeDomain.OrderKey calldata key)
-        external
-        view
-        returns (uint256)
-    {
+    function getCompleted(
+        ExchangeDomain.OrderKey calldata key
+    ) external view returns (uint256) {
         return completed[getCompletedKey(key)];
     }
 
@@ -24,11 +22,9 @@ contract ExchangeState is OwnableOperatorRole {
         completed[getCompletedKey(key)] = newCompleted;
     }
 
-    function getCompletedKey(ExchangeDomain.OrderKey memory key)
-        public
-        pure
-        returns (bytes32)
-    {
+    function getCompletedKey(
+        ExchangeDomain.OrderKey memory key
+    ) public pure returns (bytes32) {
         return
             keccak256(
                 abi.encodePacked(

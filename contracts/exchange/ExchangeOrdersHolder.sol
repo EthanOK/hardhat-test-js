@@ -16,7 +16,7 @@ contract ExchangeOrdersHolder {
         uint256 sellerFee;
     }
 
-    // 上架 订单
+    // owner 上架 订单
     function add(ExchangeDomain.Order calldata order) external {
         require(
             msg.sender == order.key.owner,
@@ -26,11 +26,9 @@ contract ExchangeOrdersHolder {
         orders[key] = OrderParams(order.selling, order.buying, order.sellerFee);
     }
 
-    function exists(ExchangeDomain.Order calldata order)
-        external
-        view
-        returns (bool)
-    {
+    function exists(
+        ExchangeDomain.Order calldata order
+    ) external view returns (bool) {
         bytes32 key = prepareKey(order);
         OrderParams memory params = orders[key];
         return
@@ -39,11 +37,9 @@ contract ExchangeOrdersHolder {
             params.sellerFee == order.sellerFee;
     }
 
-    function prepareKey(ExchangeDomain.Order memory order)
-        internal
-        pure
-        returns (bytes32)
-    {
+    function prepareKey(
+        ExchangeDomain.Order memory order
+    ) internal pure returns (bytes32) {
         return
             keccak256(
                 abi.encode(
