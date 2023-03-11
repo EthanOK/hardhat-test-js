@@ -197,7 +197,7 @@ async function main() {
   // 交互合约 new ethers.Contract(addressOrName, abi, providerOrSigner);
   let Multicall2_address = "0x8c6f3bF9Ed05afa8DC0D3f08C2DB4a6E731a3574";
 
-  console.log("wallet address:", wallet.address);
+  console.log("owner:", wallet.address);
 
   const Multicall2 = new ethers.Contract(Multicall2_address, abi, wallet);
   try {
@@ -267,12 +267,11 @@ async function main() {
         callData: "0x313ce567",
       },
     ];
-    let blockNumber_, returnData;
-    [blockNumber_, returnData] = await Multicall2.aggregateStaticCall(
+
+    let [blockNumber_, returnData] = await Multicall2.aggregateStaticCall(
       staticcalls
     );
-    console.log("blockNumber:", blockNumber_.toString());
-    // console.log(returnData);
+
     const totalSupply = parseInt(returnData[0], 16);
 
     // 解码 Solidity 结构体数据
@@ -283,6 +282,7 @@ async function main() {
 
     const symbol = decodedSymbol.toString();
     console.log(symbol);
+    console.log("blockNumber:", blockNumber_.toString());
     const decimals = parseInt(returnData[3], 16);
     const total_usdt = ethers.utils.formatUnits(totalSupply, decimals);
 
