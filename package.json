@@ -4,6 +4,7 @@
   "description": "demo",
   "main": "index.js",
   "scripts": {
+    "multicall": "npx hardhat run scripts/multicall.js",
     "compile": "npx hardhat compile",
     "clean": "npx hardhat clean",
     "test": "npx hardhat test",
