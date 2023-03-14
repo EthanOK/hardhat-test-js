@@ -1,11 +1,7 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >=0.5.0;
-pragma experimental ABIEncoderV2;
+pragma solidity ^0.8.0;
 
 /// @title Multicall2 - Aggregate results from multiple read-only function calls
-/// @author Michael Elliot <mike@makerdao.com>
-/// @author Joshua Levine <joshua@makerdao.com>
-/// @author Nick Johnson <arachnid@notdot.net>
 
 contract Multicall2 {
     struct Call {
@@ -32,6 +28,7 @@ contract Multicall2 {
     }
 
     // Multi StaticCall
+    // Only Read Data (external account call not gas)
     function aggregateStaticCall(
         Call[] memory calls
     ) public view returns (uint256 blockNumber, bytes[] memory returnData) {
@@ -41,7 +38,7 @@ contract Multicall2 {
             (bool success, bytes memory ret) = calls[i].target.staticcall(
                 calls[i].callData
             );
-            require(success, "Multicall aggregate: call failed");
+            require(success, "Multicall aggregate: staticcall failed");
             returnData[i] = ret;
         }
     }

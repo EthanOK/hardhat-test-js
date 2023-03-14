@@ -232,7 +232,7 @@ async function main() {
     // await tx.wait();
     // console.log(tx.hash);
 
-    // only get data
+    // Only Read Data (external account call not gas)
     // function aggregateStaticCall(Call[] memory calls) public view returns (uint256 blockNumber, bytes[] memory returnData)
     // totalSupply() 0x18160ddd
     // symbol() 0x95d89b41
