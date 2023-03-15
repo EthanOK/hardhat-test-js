@@ -65,15 +65,17 @@ function getAllNftAddressOfAccount(account) {
 }
 
 // 返回格式
-/* {
-  "status": "1",
-  "message": "OK",
-  "result": [
-    {
-      "TokenAddress": "0x6e7f9fccadfd34689a9542534c25475b5ffb7282",
-      "TokenName": "A",
-      "TokenSymbol": "A",
-      "TokenQuantity": "2"
-    }
-  ]
-} */
+/* 
+  {
+    "status": "1",
+    "message": "OK",
+    "result": [
+      {
+        "TokenAddress": "0x6e7f9fccadfd34689a9542534c25475b5ffb7282",
+        "TokenName": "A",
+        "TokenSymbol": "A",
+        "TokenQuantity": "2"
+      }
+    ]
+  } 
+*/
