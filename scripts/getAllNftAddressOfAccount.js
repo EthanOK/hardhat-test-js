@@ -1,15 +1,17 @@
 const axios = require("axios");
 require("dotenv").config();
-const address = "0x690B9A9E9aa1C9dB991C7721a92d351Db4FaC990";
+const address = "0x6278A1E803A76796a3A1f7F6344fE874ebfe94B2";
 const apiKey = process.env.ETHERSCAN_API_KEY;
 
 getAllNftAddressOfAccount(address);
 
 function getAllNftAddressOfAccount(account) {
-  const url = `https://api.etherscan.io/api?module=account&action=tokennfttx&address=${account}&startblock=0&endblock=999999999&sort=asc&apikey=${apiKey}`;
+  // const url = `https://api.etherscan.io/api?module=account&action=tokennfttx&address=${account}&startblock=0&endblock=999999999&sort=asc&apikey=${apiKey}`;
+  const goerliurl = `https://api-goerli.etherscan.io/api?module=account&action=tokennfttx&address=${account}&startblock=0&endblock=999999999&sort=asc&apikey=${apiKey}`;
+  console.log(goerliurl);
   console.log("Account: " + account);
   axios
-    .get(url)
+    .get(goerliurl)
     .then((response) => {
       const data = response.data;
       if (data.status === "1") {
@@ -19,10 +21,13 @@ function getAllNftAddressOfAccount(account) {
         data.result.forEach((item) => {
           const contractAddress = item.contractAddress;
           if (contractCounts.has(contractAddress)) {
-            contractCounts.set(
-              contractAddress,
-              contractCounts.get(contractAddress) + 1
-            );
+            let counts;
+            if (item.to.toLowerCase() == account.toLowerCase()) {
+              counts = contractCounts.get(contractAddress) + 1;
+            } else {
+              counts = contractCounts.get(contractAddress) - 1;
+            }
+            contractCounts.set(contractAddress, counts);
           } else {
             contractCounts.set(contractAddress, 1);
             contractNames.set(contractAddress, item.tokenName);
@@ -43,8 +48,9 @@ function getAllNftAddressOfAccount(account) {
         });
 
         const returndata = { status: "1", message: "OK", result: result };
-        console.log(returndata);
-        return returndata;
+        const jsonString = JSON.stringify(returndata);
+        console.log(jsonString);
+        return jsonString;
       } else {
         console.error(`查询 ERC721 Token 合约地址失败：${data.message}`);
       }
