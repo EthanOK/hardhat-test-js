@@ -33,7 +33,7 @@ async function main() {
   console.log("Multicall2address:", Multicall2.address);
 
   try {
-    //get staticcalls struct data
+    // get staticcalls struct data
     const staticcalls = getStaticcallsOftokenURI(nft_address, tokenIds);
 
     // return bytes[]:returnData
@@ -48,6 +48,7 @@ async function main() {
         ["string"],
         returnData[i]
       );
+
       console.log(`tokenURI(${tokenIds[i]}): ` + decodedata.toString());
     }
   } catch (error) {
@@ -60,16 +61,15 @@ async function getContract(Caddress, abi_) {
     process.env.ALCHEMY_GOERLI_URL
   );
 
-  // 交互合约 new ethers.Contract(addressOrName, abi, providerOrSigner);
+  // connect Contract: new ethers.Contract(addressOrName, abi, providerOrSigner);
   const Multicall2 = new ethers.Contract(Caddress, abi_, provider);
   return Multicall2;
 }
 
+// calculate `balanceOf(address)` 的 calldata
+// paramsType ["address"]
+// params [owner]
 function calculateCalldata(sselector, paramsType, params) {
-  // 计算 Solidity 函数 `balanceOf(address)` 的 calldata
-  // paramsType ["address"]
-  // params [owner]
-
   const functionSelector = ethers.utils.id(sselector);
   const selector = ethers.utils.hexDataSlice(functionSelector, 0, 4);
 
@@ -83,8 +83,7 @@ function calculateCalldata(sselector, paramsType, params) {
 }
 
 function getStaticcallsOftokenURI(address, tokenIds) {
-  const sselector_ = "tokenURI(uint256)";
-  //0xc87b56dd
+  const sselector_ = "tokenURI(uint256)"; // 0xc87b56dd
   let paramsType_ = ["uint256"];
 
   const callstruct = [];
