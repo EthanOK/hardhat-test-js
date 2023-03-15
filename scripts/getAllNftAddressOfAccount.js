@@ -3,6 +3,9 @@ require("dotenv").config();
 const address = "0x6278A1E803A76796a3A1f7F6344fE874ebfe94B2";
 const apiKey = process.env.ETHERSCAN_API_KEY;
 
+// 查询 Account 名下的所有 ERC721 Token 的合约地址
+// 返回一个地址所持有的ERC-721代币和金额
+// 效果等同于 https://docs.etherscan.io/api-endpoints/tokens#get-address-erc721-token-holding
 getAllNftAddressOfAccount(address);
 
 function getAllNftAddressOfAccount(account) {
@@ -59,3 +62,17 @@ function getAllNftAddressOfAccount(account) {
       console.error(`查询 ERC721 Token 合约地址失败：${error.message}`);
     });
 }
+
+// 返回格式
+/* {
+  "status": "1",
+  "message": "OK",
+  "result": [
+    {
+      "TokenAddress": "0x6e7f9fccadfd34689a9542534c25475b5ffb7282",
+      "TokenName": "A",
+      "TokenSymbol": "A",
+      "TokenQuantity": "2"
+    }
+  ]
+} */
