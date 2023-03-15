@@ -41,13 +41,14 @@ function getAllNftAddressOfAccount(account) {
         const result = [];
         contractCounts.forEach((value, key) => {
           // console.log(`${key}: ${value}`);
-
-          result.push({
-            TokenAddress: key,
-            TokenName: contractNames.get(key),
-            TokenSymbol: contractSymbol.get(key),
-            TokenQuantity: value.toString(),
-          });
+          if (value > 0) {
+            result.push({
+              TokenAddress: key,
+              TokenName: contractNames.get(key),
+              TokenSymbol: contractSymbol.get(key),
+              TokenQuantity: value,
+            });
+          }
         });
 
         const returndata = { status: "1", message: "OK", result: result };
