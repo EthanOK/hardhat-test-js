@@ -1,20 +1,23 @@
 const axios = require("axios");
 require("dotenv").config();
-const address = "0x6278A1E803A76796a3A1f7F6344fE874ebfe94B2";
+const address = "0x5464204AB93Bf4E2d698875a59c8f4e988888888";
 const apiKey = process.env.ETHERSCAN_API_KEY;
+
+// const mainurl = `https://api.etherscan.io`;
+const goerliurl = `https://api-goerli.etherscan.io`;
 
 // 查询 Account 名下的所有 ERC721 Token 的合约地址
 // 返回一个地址所持有的ERC-721代币和金额
 // 效果等同于 https://docs.etherscan.io/api-endpoints/tokens#get-address-erc721-token-holding
-getAllNftAddressOfAccount(address);
+getAllNftAddressOfAccount(address, goerliurl);
 
-function getAllNftAddressOfAccount(account) {
-  // const url = `https://api.etherscan.io/api?module=account&action=tokennfttx&address=${account}&startblock=0&endblock=999999999&sort=asc&apikey=${apiKey}`;
-  const goerliurl = `https://api-goerli.etherscan.io/api?module=account&action=tokennfttx&address=${account}&startblock=0&endblock=999999999&sort=asc&apikey=${apiKey}`;
-  console.log(goerliurl);
+function getAllNftAddressOfAccount(account, url) {
+  url =
+    url +
+    `/api?module=account&action=tokennfttx&address=${account}&startblock=0&endblock=999999999&sort=asc&apikey=${apiKey}`;
   console.log("Account: " + account);
   axios
-    .get(goerliurl)
+    .get(url)
     .then((response) => {
       const data = response.data;
       if (data.status === "1") {
@@ -46,7 +49,7 @@ function getAllNftAddressOfAccount(account) {
               TokenAddress: key,
               TokenName: contractNames.get(key),
               TokenSymbol: contractSymbol.get(key),
-              TokenQuantity: value,
+              TokenQuantity: value.toString(),
             });
           }
         });
