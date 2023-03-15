@@ -30,18 +30,21 @@ function getAllNftAddressOfAccount(account) {
           }
         });
         console.log(`该账户地址下 ERC721 Token 合约地址及持有数量：`);
-        const datastruct = [];
+        const result = [];
         contractCounts.forEach((value, key) => {
           // console.log(`${key}: ${value}`);
 
-          datastruct.push({
+          result.push({
             TokenAddress: key,
             TokenName: contractNames.get(key),
             TokenSymbol: contractSymbol.get(key),
-            TokenQuantity: value,
+            TokenQuantity: value.toString(),
           });
         });
-        console.log(datastruct);
+
+        const returndata = { status: "1", message: "OK", result: result };
+        console.log(returndata);
+        return returndata;
       } else {
         console.error(`查询 ERC721 Token 合约地址失败：${data.message}`);
       }
