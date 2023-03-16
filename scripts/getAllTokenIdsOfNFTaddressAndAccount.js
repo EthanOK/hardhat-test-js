@@ -9,7 +9,7 @@ const goerliurl = `https://api-goerli.etherscan.io`;
 
 // 查询 Account 名下持有某nft的tokenId集合
 // 返回一个地址所持有某一ERC-721代币的tokenIds
-// 效果等同于 https://docs.etherscan.io/api-endpoints/tokens#get-address-erc721-token-holding
+// 效果等同于 https://docs.etherscan.io/api-endpoints/tokens#get-address-erc721-token-inventory-by-contract-address
 getAllTokenIdsOfNFTaddressAndAccount(nftaddress, address, goerliurl);
 
 function getAllTokenIdsOfNFTaddressAndAccount(nftaddress, account, url) {
