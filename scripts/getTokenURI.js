@@ -57,7 +57,8 @@ async function getTokenURI(erc721_address, tokenIds_, M_address) {
         TokenURI: decodedata.toString(),
       });
     }
-    const jsonString = JSON.stringify(result);
+    const returndata = { status: "1", message: "OK", result: result };
+    const jsonString = JSON.stringify(returndata);
     console.log(jsonString);
     return jsonString;
   } catch (error) {
