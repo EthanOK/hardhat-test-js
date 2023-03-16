@@ -7,6 +7,7 @@ import "./OwnableOperatorRole.sol";
 
 contract ExchangeState is OwnableOperatorRole {
     // keccak256(OrderKey) => completed
+    //
     mapping(bytes32 => uint256) public completed;
 
     function getCompleted(
@@ -22,6 +23,7 @@ contract ExchangeState is OwnableOperatorRole {
         completed[getCompletedKey(key)] = newCompleted;
     }
 
+    // 紧密打包order参数哈希运算得到bytes32的key，作为订单标识
     function getCompletedKey(
         ExchangeDomain.OrderKey memory key
     ) public pure returns (bytes32) {
