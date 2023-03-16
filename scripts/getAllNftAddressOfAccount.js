@@ -6,7 +6,7 @@ const apiKey = process.env.ETHERSCAN_API_KEY;
 // const mainurl = `https://api.etherscan.io`;
 const goerliurl = `https://api-goerli.etherscan.io`;
 
-// 查询 Account 名下的所有 ERC721 Token 的合约地址
+// 查询 Account 名下的所有 ERC721 Token 的合约地址列表
 // 返回一个地址所持有的ERC-721代币和金额
 // 效果等同于 https://docs.etherscan.io/api-endpoints/tokens#get-address-erc721-token-holding
 getAllNftAddressOfAccount(address, goerliurl);
