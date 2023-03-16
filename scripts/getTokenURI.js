@@ -1,61 +1,69 @@
-const { ethers } = require("hardhat");
+const { ethers } = require("ethers");
+require("dotenv").config();
 
-const abi = [
-  {
-    inputs: [
-      {
-        components: [
-          { internalType: "address", name: "target", type: "address" },
-          { internalType: "bytes", name: "callData", type: "bytes" },
-        ],
-        internalType: "struct Multicall2.Call[]",
-        name: "calls",
-        type: "tuple[]",
-      },
-    ],
-    name: "aggregateStaticCall",
-    outputs: [
-      { internalType: "uint256", name: "blockNumber", type: "uint256" },
-      { internalType: "bytes[]", name: "returnData", type: "bytes[]" },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-];
 const Multicall2_address = "0x8c6f3bF9Ed05afa8DC0D3f08C2DB4a6E731a3574";
 const nft_address = "0xE29F8038d1A3445Ab22AD1373c65eC0a6E1161a4";
 
-const tokenIds = Array.from({ length: 100 }, (_, i) => i + 1);
+const tokenIds = Array.from({ length: 10 }, (_, i) => i + 1);
 
 async function main() {
+  await getTokenURI(nft_address, tokenIds, Multicall2_address);
+}
+
+async function getTokenURI(erc721_address, tokenIds_, M_address) {
+  const abi = [
+    {
+      inputs: [
+        {
+          components: [
+            { internalType: "address", name: "target", type: "address" },
+            { internalType: "bytes", name: "callData", type: "bytes" },
+          ],
+          internalType: "struct Multicall2.Call[]",
+          name: "calls",
+          type: "tuple[]",
+        },
+      ],
+      name: "aggregateStaticCall",
+      outputs: [
+        { internalType: "uint256", name: "blockNumber", type: "uint256" },
+        { internalType: "bytes[]", name: "returnData", type: "bytes[]" },
+      ],
+      stateMutability: "view",
+      type: "function",
+    },
+  ];
   // connect Multicall2
-  const Multicall2 = await getContract(Multicall2_address, abi);
-  console.log("Multicall2address:", Multicall2.address);
+  const Multicall2 = await getContract(M_address, abi);
 
   try {
     // get staticcalls struct data
-    const staticcalls = getStaticcallsOftokenURI(nft_address, tokenIds);
+    const staticcalls = getStaticcallsOftokenURI(erc721_address, tokenIds_);
 
     // return bytes[]:returnData
     const [blockNumber_, returnData] = await Multicall2.aggregateStaticCall(
       staticcalls
     );
-    console.log("NFT contract address:" + nft_address);
-    console.log("`````````````````````````````````````````");
+
+    const result = [];
     // bytes to string (tokenURI() return string)
     for (let i = 0; i < returnData.length; i++) {
       const decodedata = ethers.utils.defaultAbiCoder.decode(
         ["string"],
         returnData[i]
       );
-
-      console.log(`tokenURI(${tokenIds[i]}): ` + decodedata.toString());
+      result.push({
+        TokenId: tokenIds[i].toString(),
+        TokenURI: decodedata.toString(),
+      });
     }
+    const jsonString = JSON.stringify(result);
+    console.log(jsonString);
+    return jsonString;
   } catch (error) {
-    console.log(error);
+    console.log(error.message);
   }
 }
-
 async function getContract(Caddress, abi_) {
   const provider = new ethers.providers.JsonRpcProvider(
     process.env.ALCHEMY_GOERLI_URL
