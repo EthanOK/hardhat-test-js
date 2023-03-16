@@ -15,7 +15,7 @@ getAllTokenIdsOfNFTaddressAndAccount(nftaddress, address, goerliurl);
 function getAllTokenIdsOfNFTaddressAndAccount(nftaddress, account, url) {
   url =
     url +
-    `/api?module=account&action=tokennfttx&contractaddress=${nftaddress}&address=${account}&startblock=0&endblock=999999999&sort=asc&apikey=${apiKey}`;
+    `/api?module=account&action=tokennfttx&contractaddress=${nftaddress}&address=${account}&startblock=0&endblock=latest&sort=asc&apikey=${apiKey}`;
 
   axios
     .get(url)
@@ -69,15 +69,6 @@ function getAllTokenIdsOfNFTaddressAndAccount(nftaddress, account, url) {
   {
     "status": "1",
     "message": "OK",
-    "result": [
-      {
-        "TokenAddress": "0x6e7f9fccadfd34689a9542534c25475b5ffb7282",
-        "TokenId": "1"
-      },
-      {
-        "TokenAddress": "0x6e7f9fccadfd34689a9542534c25475b5ffb7282",
-        "TokenId": "10"
-      }
-    ]
+    "result": ["0", "43", "44", "45", "46", "47"]
   }
 */
