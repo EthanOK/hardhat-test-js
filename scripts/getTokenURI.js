@@ -6,9 +6,7 @@ const nft_address = "0xE29F8038d1A3445Ab22AD1373c65eC0a6E1161a4";
 
 const tokenIds = Array.from({ length: 10 }, (_, i) => i + 1);
 
-async function main() {
-  await getTokenURI(nft_address, tokenIds, Multicall2_address);
-}
+getTokenURI(nft_address, tokenIds, Multicall2_address);
 
 async function getTokenURI(erc721_address, tokenIds_, M_address) {
   const abi = [
@@ -105,7 +103,3 @@ function getStaticcallsOftokenURI(address, tokenIds) {
   }
   return callstruct;
 }
-main().catch((error) => {
-  console.error(error);
-  process.exitCode = 1;
-});

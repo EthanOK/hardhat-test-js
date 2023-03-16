@@ -1,6 +1,6 @@
 const axios = require("axios");
 require("dotenv").config();
-const address = "0x5464204AB93Bf4E2d698875a59c8f4e988888888";
+const address = "0x6278A1E803A76796a3A1f7F6344fE874ebfe94B2";
 const apiKey = process.env.ETHERSCAN_API_KEY;
 
 // const mainurl = `https://api.etherscan.io`;
@@ -59,7 +59,13 @@ function getAllNftAddressOfAccount(account, url) {
         console.log(jsonString);
         return jsonString;
       } else {
-        console.error(`查询 ERC721 Token 合约地址失败：${data.message}`);
+        const nodata = {
+          status: "0",
+          message: "No transactions found",
+          result: [],
+        };
+        console.log(nodata);
+        return nodata;
       }
     })
     .catch((error) => {
