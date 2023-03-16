@@ -7,8 +7,8 @@ const nftaddress = "0x6e7f9fccadfd34689a9542534c25475b5ffb7282";
 // const mainurl = `https://api.etherscan.io`;
 const goerliurl = `https://api-goerli.etherscan.io`;
 
-// 查询 Account 名下的所有 ERC721 Token 的合约地址
-// 返回一个地址所持有的ERC-721代币和金额
+// 查询 Account 名下持有某nft的tokenId集合
+// 返回一个地址所持有某一ERC-721代币的tokenIds
 // 效果等同于 https://docs.etherscan.io/api-endpoints/tokens#get-address-erc721-token-holding
 getAllTokenIdsOfNFTaddressAndAccount(nftaddress, address, goerliurl);
 
@@ -66,9 +66,18 @@ function getAllTokenIdsOfNFTaddressAndAccount(nftaddress, account, url) {
 
 // 返回格式
 /* 
-  {
-    "status": "1",
-    "message": "OK",
-    "result": ["0", "43", "44", "45", "46", "47"]
-  }
+{
+  "status": "1",
+  "message": "OK",
+  "result": [
+    {
+      "TokenAddress": "0x6e7f9fccadfd34689a9542534c25475b5ffb7282",
+      "TokenId": "1"
+    },
+    {
+      "TokenAddress": "0x6e7f9fccadfd34689a9542534c25475b5ffb7282",
+      "TokenId": "10"
+    }
+  ]
+}
 */

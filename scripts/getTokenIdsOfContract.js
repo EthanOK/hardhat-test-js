@@ -16,7 +16,7 @@ function getTokenIdsOfContract(address, url) {
   url =
     url +
     `/api?module=account&action=tokennfttx&contractaddress=${address}&address=${account_0x0}&startblock=0&endblock=latest&sort=asc&apikey=${apiKey}`;
-  console.log(url);
+  // console.log(url);
   axios
     .get(url)
     .then((response) => {
@@ -56,13 +56,6 @@ function getTokenIdsOfContract(address, url) {
   {
     "status": "1",
     "message": "OK",
-    "result": [
-      {
-        "TokenAddress": "0x6e7f9fccadfd34689a9542534c25475b5ffb7282",
-        "TokenName": "A",
-        "TokenSymbol": "A",
-        "TokenQuantity": "2"
-      }
-    ]
+    "result": ["0", "43", "44", "45", "46", "47"]
   } 
 */
