@@ -15,6 +15,7 @@ function getAllNftAddressOfAccount(account, url) {
   url =
     url +
     `/api?module=account&action=tokennfttx&address=${account}&startblock=0&endblock=latest&sort=asc&apikey=${apiKey}`;
+  console.log(url);
   console.log("Account: " + account);
   axios
     .get(url)

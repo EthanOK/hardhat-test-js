@@ -2,11 +2,13 @@ const axios = require("axios");
 require("dotenv").config();
 const address = "0x6278A1E803A76796a3A1f7F6344fE874ebfe94B2";
 const apiKey = process.env.ETHERSCAN_API_KEY;
-const nftaddress = "0x6e7f9fccadfd34689a9542534c25475b5ffb7282";
+const nftaddress = "0x0d3e02768ab63516ab5d386fad462214ca3e6a86";
 
 // const mainurl = `https://api.etherscan.io`;
 const goerliurl = `https://api-goerli.etherscan.io`;
 
+console.log("account:" + address);
+console.log("nftaddress:" + nftaddress);
 // 查询 Account 名下持有某nft的tokenId集合
 // 返回一个地址所持有某一ERC-721代币的tokenIds
 // 效果等同于 https://docs.etherscan.io/api-endpoints/tokens#get-address-erc721-token-inventory-by-contract-address

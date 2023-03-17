@@ -30,12 +30,14 @@ contract ExchangeDomain {
 
     struct Order {
         OrderKey key;
-        /* how much has owner (in wei, or UINT256_MAX if ERC-721) */
-        uint256 selling;
-        /* how much wants owner (in wei, or UINT256_MAX if ERC-721) */
-        uint256 buying;
-        /* fee for selling */
-        uint256 sellerFee;
+        /* The total quantity the seller wants to sell */
+        uint256 sellAmount;
+        /* The total price the seller wants to sell */
+        uint256 sellPrice;
+        // oeder startTime
+        uint256 startTime;
+        // oeder endTime
+        uint256 endTime;
     }
 
     /* An ECDSA signature. */
@@ -46,5 +48,12 @@ contract ExchangeDomain {
         bytes32 r;
         /* s parameter */
         bytes32 s;
+    }
+
+    struct Royalty {
+        /* contract address */
+        address addressNft;
+        /* royalty fee value */
+        uint256 royaltyFee;
     }
 }
