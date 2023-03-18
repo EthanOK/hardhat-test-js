@@ -2,14 +2,18 @@
 pragma solidity >=0.4.22 <0.9.0;
 pragma experimental ABIEncoderV2;
 
-
-contract ExchangeDomain {
-
-    enum AssetType {ETH, ERC20, ERC1155, ERC721, ERC721Deprecated}
+contract ExchangeDomainV1 {
+    enum AssetType {
+        ETH,
+        ERC20,
+        ERC1155,
+        ERC721,
+        ERC721Deprecated
+    }
 
     struct Asset {
         address token;
-        uint tokenId;
+        uint256 tokenId;
         AssetType assetType;
     }
 
@@ -17,25 +21,23 @@ contract ExchangeDomain {
         /* who signed the order */
         address owner;
         /* random number */
-        uint salt;
-
+        uint256 salt;
         /* what has owner */
         Asset sellAsset;
-
         /* what wants owner */
         Asset buyAsset;
     }
 
     struct Order {
         OrderKey key;
-
-        /* how much has owner (in wei, or UINT256_MAX if ERC-721) */
-        uint selling;
-        /* how much wants owner (in wei, or UINT256_MAX if ERC-721) */
-        uint buying;
-
-        /* fee for selling */
-        uint sellerFee;
+        /* The total quantity the seller wants to sell */
+        uint256 sellAmount;
+        /* unit price */
+        uint256 unitPrice;
+        // oeder startTime
+        uint256 startTime;
+        // oeder endTime
+        uint256 endTime;
     }
 
     /* An ECDSA signature. */
@@ -46,5 +48,13 @@ contract ExchangeDomain {
         bytes32 r;
         /* s parameter */
         bytes32 s;
+    }
+
+    struct Royalty {
+        /* contract address */
+        address addressNft;
+        /* royalty fee value */
+        uint256 royaltyFee;
+        uint256 sigTime;
     }
 }
