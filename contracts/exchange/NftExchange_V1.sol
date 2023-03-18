@@ -63,8 +63,8 @@ contract NftExchange is Ownable, ExchangeDomain {
         TransferProxy _transferProxy,
         TransferProxyForDeprecated _transferProxyForDeprecated,
         ERC20TransferProxy _erc20TransferProxy,
-        ExchangeState _state,
-        ExchangeOrdersHolder _ordersHolder,
+        // ExchangeState _state,
+        // ExchangeOrdersHolder _ordersHolder,
         address payable _beneficiary,
         address _royaltyFeeSigner,
         uint256 _platformFee
@@ -72,8 +72,8 @@ contract NftExchange is Ownable, ExchangeDomain {
         transferProxy = _transferProxy;
         transferProxyForDeprecated = _transferProxyForDeprecated;
         erc20TransferProxy = _erc20TransferProxy;
-        state = _state;
-        ordersHolder = _ordersHolder;
+        // state = _state;
+        // ordersHolder = _ordersHolder;
         beneficiary = _beneficiary;
         royaltyFeeSigner = _royaltyFeeSigner;
         platformFee = _platformFee;
@@ -107,19 +107,26 @@ contract NftExchange is Ownable, ExchangeDomain {
             "nft contract mismatch"
         );
         require(
-            order.startTime <= block.timestamp <= order.endTime,
+            order.startTime <= block.timestamp &&
+                block.timestamp <= order.endTime,
             "order has expired"
+        );
+        // 时间限制 def = 3min
+        require(
+            block.timestamp <= royalty.sigTime + 180,
+            "royalty sig has expired"
         );
         // 验证订单签名
         validateOrderSig(order, sig);
-        // 验证 版权手续费 签名
-        validateRoyaltyFeeSig(royalty, royaltySig);
+        // 验证 版权手续费 签名(将订单签名再次打包由系统签名，以此来判定订单是否失效)
+
+        validateRoyaltyFeeSig(royalty, sig, royaltySig);
 
         //
         // uint256 paying = order.buying.mul(amount).div(order.selling);
         uint256 payPrice = (order.sellPrice * amount) / order.sellAmount;
         // 验证购买数量与库存
-        verifyOpenAndModifyOrderState(order.key, order.selling, amount);
+        verifyOpenAndModifyOrderState(order.key, order.sellAmount, amount);
         // 不支持出售eth
         require(
             order.key.sellAsset.assetType != AssetType.ETH,
@@ -170,31 +177,31 @@ contract NftExchange is Ownable, ExchangeDomain {
     }
 
     // 下架tokenId(之前的签名失效)
-    function cancel(Order[] calldata orders, Sig[] calldata sigs) external {
-        require(orders.length == sigs.length, "length");
-        uint256 len = orders.length;
-        for (uint256 i = 0; i < len; i++) {
-            require(orders[i].key.owner == msg.sender, "not an owner");
-            validateOrderSig(orders[i], sigs[i]);
-            require(!state.getInvalidOrders(orders[i]), "Mismatched length");
-        }
-        state.setInvalidOrders(orders);
+    // function cancel(Order[] calldata orders, Sig[] calldata sigs) external {
+    //     require(orders.length == sigs.length, "length");
+    //     uint256 len = orders.length;
+    //     for (uint256 i = 0; i < len; i++) {
+    //         require(orders[i].key.owner == msg.sender, "not an owner");
+    //         validateOrderSig(orders[i], sigs[i]);
+    //         require(!state.getInvalidOrders(orders[i]), "Mismatched length");
+    //     }
+    //     state.setInvalidOrders(orders);
 
-        // orders[len - 1] 最新订单价格
-        emit Cancel(
-            orders[len - 1].key.sellAsset.token,
-            orders[len - 1].key.sellAsset.tokenId,
-            msg.sender,
-            orders[len - 1].key.buyAsset.token,
-            orders[len - 1].key.buyAsset.tokenId,
-            orders[len - 1].key.salt
-        );
-    }
+    //     // orders[len - 1] 最新订单价格
+    //     emit Cancel(
+    //         orders[len - 1].key.sellAsset.token,
+    //         orders[len - 1].key.sellAsset.tokenId,
+    //         msg.sender,
+    //         orders[len - 1].key.buyAsset.token,
+    //         orders[len - 1].key.buyAsset.tokenId,
+    //         orders[len - 1].key.salt
+    //     );
+    // }
 
     function validateOrderSig(
         Order memory order,
         Sig memory sig
-    ) internal view {
+    ) internal pure {
         require(
             prepareMessage(order).recover(sig.v, sig.r, sig.s) ==
                 order.key.owner,
@@ -204,19 +211,24 @@ contract NftExchange is Ownable, ExchangeDomain {
 
     function validateRoyaltyFeeSig(
         Royalty memory royalty,
-        Sig memory sig
+        Sig memory sig,
+        Sig memory royaltySig
     ) internal view {
         require(
-            prepareRoyaltyFeeMessage(royalty).recover(sig.v, sig.r, sig.s) ==
-                royaltyFeeSigner,
+            prepareRoyaltyFeeMessage(royalty, sig).recover(
+                royaltySig.v,
+                royaltySig.r,
+                royaltySig.s
+            ) == royaltyFeeSigner,
             "incorrect royalty fee signature"
         );
     }
 
     function prepareRoyaltyFeeMessage(
-        Royalty memory royalty
+        Royalty memory royalty,
+        Sig memory sig
     ) public pure returns (string memory) {
-        return keccak256(abi.encode(royalty)).toString();
+        return keccak256(abi.encode(royalty, sig)).toString();
     }
 
     function prepareMessage(
@@ -346,11 +358,11 @@ contract NftExchange is Ownable, ExchangeDomain {
         emit Buy(
             order.key.sellAsset.token,
             order.key.sellAsset.tokenId,
-            order.selling,
+            order.sellAmount,
             order.key.owner,
             order.key.buyAsset.token,
             order.key.buyAsset.tokenId,
-            order.buying,
+            order.sellPrice,
             buyer,
             amount,
             order.key.salt
