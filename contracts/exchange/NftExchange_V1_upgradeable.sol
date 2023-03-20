@@ -5,13 +5,12 @@ import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
 import "./ExchangeDomainV1.sol";
 
-contract NftExchangeV1 is Ownable, ExchangeDomainV1 {
-    // using UintLibrary for uint256;
-    // using StringLibrary for string;
+contract NftExchangeV1 is ExchangeDomainV1, Initializable, OwnableUpgradeable {
     using ECDSA for bytes32;
 
     event Exchange(
@@ -34,14 +33,19 @@ contract NftExchangeV1 is Ownable, ExchangeDomainV1 {
     uint256 public platformFee;
     uint256 public sigEffectiveTime = 10 minutes;
 
-    constructor(
+    constructor() {
+        _disableInitializers();
+    }
+
+    function initialize(
         address payable _beneficiary,
         address _royaltyFeeSigner,
         uint256 _platformFee
-    ) {
+    ) public initializer {
         beneficiary = _beneficiary;
         royaltyFeeSigner = _royaltyFeeSigner;
         platformFee = _platformFee;
+        __Ownable_init();
     }
 
     function setBeneficiary(address payable newBeneficiary) external onlyOwner {
