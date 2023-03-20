@@ -10,7 +10,11 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
 import "./ExchangeDomainV1.sol";
 
-contract NftExchangeV1 is ExchangeDomainV1, Initializable, OwnableUpgradeable {
+contract NftExchangeV1_Up is
+    ExchangeDomainV1,
+    Initializable,
+    OwnableUpgradeable
+{
     using ECDSA for bytes32;
 
     event Exchange(
@@ -26,12 +30,13 @@ contract NftExchangeV1 is ExchangeDomainV1, Initializable, OwnableUpgradeable {
 
     bytes4 private constant INTERFACE_ID_ERC721 = 0x80ac58cd;
     bytes4 private constant INTERFACE_ID_ERC1155 = 0xd9b67a26;
+    // percentage : (royaltyFee + platformFee) / FEE_10000
     uint256 public constant FEE_10000 = 10000;
 
     address payable public beneficiary;
     address public royaltyFeeSigner;
     uint256 public platformFee;
-    uint256 public sigEffectiveTime = 10 minutes;
+    uint256 public sigEffectiveTime;
 
     constructor() {
         _disableInitializers();
@@ -40,11 +45,13 @@ contract NftExchangeV1 is ExchangeDomainV1, Initializable, OwnableUpgradeable {
     function initialize(
         address payable _beneficiary,
         address _royaltyFeeSigner,
-        uint256 _platformFee
+        uint256 _platformFee,
+        uint256 _sigEffectiveTime
     ) public initializer {
         beneficiary = _beneficiary;
         royaltyFeeSigner = _royaltyFeeSigner;
         platformFee = _platformFee;
+        sigEffectiveTime = _sigEffectiveTime;
         __Ownable_init();
     }
 
