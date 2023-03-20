@@ -129,7 +129,7 @@ contract NftExchangeV1 is Ownable, ExchangeDomainV1 {
             require(msg.value >= payPrice, "ETH insufficient");
             payable(msg.sender).transfer(msg.value - payPrice);
         }
-        // transfer nft
+        // transfer nft to buyer
         transfer_NftToBuyer(
             order.key.sellAsset.assetType,
             order.key.sellAsset.token,
@@ -138,7 +138,7 @@ contract NftExchangeV1 is Ownable, ExchangeDomainV1 {
             order.key.sellAsset.tokenId,
             amount
         );
-        // transfer eth or erc20
+        // transfer to seller  eth or erc20
     }
 
     function transfer_NftToBuyer(
