@@ -2,6 +2,7 @@
 pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -12,25 +13,24 @@ import "../lib/utils/BytesLibrary.sol";
 import "./ExchangeDomainV1.sol";
 
 contract NftExchangeV1 is Ownable, ExchangeDomainV1 {
-    using UintLibrary for uint256;
+    // using UintLibrary for uint256;
     using StringLibrary for string;
     using BytesLibrary for bytes32;
 
-    event Buy(
+    event Exchange(
         address indexed sellToken,
         uint256 indexed sellTokenId,
-        uint256 sellValue,
-        address owner,
+        address indexed seller,
         address buyToken,
-        uint256 buyTokenId,
-        uint256 buyValue,
         address buyer,
         uint256 amount,
-        uint256 salt
+        uint256 payPrice,
+        uint256 royaltyFee
     );
 
     bytes4 private constant INTERFACE_ID_ERC721 = 0x80ac58cd;
     bytes4 private constant INTERFACE_ID_ERC1155 = 0xd9b67a26;
+    uint256 public constant FEE_10000 = 10000;
 
     address payable public beneficiary;
     address public royaltyFeeSigner;
@@ -73,6 +73,7 @@ contract NftExchangeV1 is Ownable, ExchangeDomainV1 {
         uint256 amount,
         Sig calldata royaltySig
     ) external payable {
+        address buyerAccount = _msgSender();
         require(amount > 0, "amount should > 0");
         require(
             order.key.sellAsset.token == royalty.addressNft,
@@ -127,18 +128,42 @@ contract NftExchangeV1 is Ownable, ExchangeDomainV1 {
         if (order.key.buyAsset.assetType == AssetType.ETH) {
             // 验证 msg.value 足量
             require(msg.value >= payPrice, "ETH insufficient");
-            payable(msg.sender).transfer(msg.value - payPrice);
+        } else if (order.key.buyAsset.assetType == AssetType.ERC20) {
+            uint256 allowanceAmount = IERC20(order.key.buyAsset.token)
+                .allowance(buyerAccount, address(this));
+            require(payPrice <= allowanceAmount, "allowance not enough");
         }
+
         // transfer nft to buyer
         transfer_NftToBuyer(
             order.key.sellAsset.assetType,
             order.key.sellAsset.token,
             order.key.owner,
-            msg.sender,
+            buyerAccount,
             order.key.sellAsset.tokenId,
             amount
         );
+
         // transfer to seller  eth or erc20
+        transferEthOrErc20ToSellerAndPlant(
+            order.key.buyAsset.assetType,
+            order.key.buyAsset.token,
+            buyerAccount,
+            order.key.owner,
+            payPrice,
+            royalty.royaltyFee
+        );
+
+        emit Exchange(
+            order.key.sellAsset.token,
+            order.key.sellAsset.tokenId,
+            order.key.owner,
+            order.key.buyAsset.token,
+            buyerAccount,
+            amount,
+            payPrice,
+            royalty.royaltyFee
+        );
     }
 
     function transfer_NftToBuyer(
@@ -164,6 +189,40 @@ contract NftExchangeV1 is Ownable, ExchangeDomainV1 {
                 tokenId,
                 amount,
                 "0x"
+            );
+        }
+    }
+
+    function transferEthOrErc20ToSellerAndPlant(
+        AssetType assertType,
+        address erc20Address,
+        address fromAccount,
+        address toAccount,
+        uint256 payAmount,
+        uint256 royaltyFee
+    ) internal {
+        uint256 totalFee = royaltyFee + platformFee;
+        uint256 amountFee = (payAmount * totalFee) / FEE_10000;
+        uint256 amountOfSeller = payAmount - amountFee;
+
+        if (assertType == AssetType.ETH) {
+            payable(toAccount).transfer(amountOfSeller);
+            payable(beneficiary).transfer(amountFee);
+        } else if (assertType == AssetType.ERC20) {
+            IERC20(erc20Address).transferFrom(
+                fromAccount,
+                toAccount,
+                amountOfSeller
+            );
+            IERC20(erc20Address).transferFrom(
+                fromAccount,
+                toAccount,
+                amountOfSeller
+            );
+            IERC20(erc20Address).transferFrom(
+                fromAccount,
+                beneficiary,
+                amountFee
             );
         }
     }
