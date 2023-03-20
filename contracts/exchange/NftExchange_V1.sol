@@ -27,21 +27,24 @@ contract NftExchangeV1 is Ownable, ExchangeDomainV1 {
 
     bytes4 private constant INTERFACE_ID_ERC721 = 0x80ac58cd;
     bytes4 private constant INTERFACE_ID_ERC1155 = 0xd9b67a26;
+    // percentage : (royaltyFee + platformFee) / FEE_10000
     uint256 public constant FEE_10000 = 10000;
 
     address payable public beneficiary;
     address public royaltyFeeSigner;
     uint256 public platformFee;
-    uint256 public sigEffectiveTime = 10 minutes;
+    uint256 public sigEffectiveTime;
 
     constructor(
         address payable _beneficiary,
         address _royaltyFeeSigner,
-        uint256 _platformFee
+        uint256 _platformFee,
+        uint256 _sigEffectiveTime
     ) {
         beneficiary = _beneficiary;
         royaltyFeeSigner = _royaltyFeeSigner;
         platformFee = _platformFee;
+        sigEffectiveTime = _sigEffectiveTime;
     }
 
     function setBeneficiary(address payable newBeneficiary) external onlyOwner {
@@ -68,6 +71,7 @@ contract NftExchangeV1 is Ownable, ExchangeDomainV1 {
         Sig calldata sig,
         Royalty calldata royalty,
         uint256 amount,
+        uint256 sigTime,
         Sig calldata royaltySig
     ) external payable {
         address buyerAccount = _msgSender();
@@ -83,7 +87,7 @@ contract NftExchangeV1 is Ownable, ExchangeDomainV1 {
         );
 
         require(
-            block.timestamp <= royalty.sigTime + sigEffectiveTime,
+            block.timestamp <= sigTime + sigEffectiveTime,
             "royalty sig has expired"
         );
 
@@ -95,11 +99,10 @@ contract NftExchangeV1 is Ownable, ExchangeDomainV1 {
             order.key.sellAsset.assetType != AssetType.ERC20,
             "ERC20 is not supported on sell side"
         );
-        // 验证订单签名
-        validateOrderSig(order, sig);
-        // 验证 版权手续费 签名(将订单签名再次打包由系统签名，以此来判定订单是否失效)
 
-        validateRoyaltyFeeSig(royalty, sig, amount, royaltySig);
+        validateOrderSig(order, sig);
+
+        validateRoyaltyFeeSig(sig, royalty, amount, sigTime, royaltySig);
 
         if (
             order.key.sellAsset.assetType == AssetType.ERC721Deprecated ||
@@ -163,7 +166,61 @@ contract NftExchangeV1 is Ownable, ExchangeDomainV1 {
         );
     }
 
-    function batchExchangeERC721() external payable {}
+    function batchExchangeERC721(
+        Order[] calldata orders,
+        Sig[] calldata sigs,
+        Royalty[] calldata royaltys,
+        uint256 amount,
+        uint256 sigTime,
+        Sig calldata royaltySig
+    ) external payable {
+        address buyerAccount = _msgSender();
+
+        require(
+            amount > 0 &&
+                orders.length == sigs.length &&
+                orders.length == royaltys.length,
+            "amount is wrong"
+        );
+
+        // verifiy orders
+        for (uint256 i = 0; i < amount; i++) {
+            require(
+                orders[i].key.sellAsset.token == royaltys[i].addressNft,
+                "nft contract mismatch"
+            );
+            require(
+                orders[i].startTime <= block.timestamp &&
+                    block.timestamp <= orders[i].endTime,
+                "order has expired"
+            );
+
+            require(
+                block.timestamp <= sigTime + sigEffectiveTime,
+                "royalty sig has expired"
+            );
+
+            require(
+                orders[i].key.sellAsset.assetType != AssetType.ETH,
+                "ETH is not supported on sell side"
+            );
+            require(
+                orders[i].key.sellAsset.assetType != AssetType.ERC20,
+                "ERC20 is not supported on sell side"
+            );
+            require(
+                orders[i].key.sellAsset.assetType ==
+                    AssetType.ERC721Deprecated ||
+                    IERC165(orders[i].key.sellAsset.token).supportsInterface(
+                        INTERFACE_ID_ERC721
+                    ),
+                "Not ERC721"
+            );
+            validateOrderSig(orders[i], sigs[i]);
+        }
+
+        batchValidateRoyaltyFeeSig(sigs, royaltys, amount, sigTime, royaltySig);
+    }
 
     function transfer_NftToBuyer(
         AssetType assertType,
@@ -238,27 +295,35 @@ contract NftExchangeV1 is Ownable, ExchangeDomainV1 {
     }
 
     function validateRoyaltyFeeSig(
-        Royalty memory royalty,
         Sig memory sig,
+        Royalty memory royalty,
         uint256 amount,
+        uint256 sigTime,
         Sig memory royaltySig
     ) internal view {
+        bytes32 message = keccak256(abi.encode(sig, royalty, amount, sigTime));
         require(
-            prepareRoyaltyFeeMessage(royalty, sig, amount).recover(
-                royaltySig.v,
-                royaltySig.r,
-                royaltySig.s
-            ) == royaltyFeeSigner,
+            message.recover(royaltySig.v, royaltySig.r, royaltySig.s) ==
+                royaltyFeeSigner,
             "incorrect royalty fee signature"
         );
     }
 
-    function prepareRoyaltyFeeMessage(
-        Royalty memory royalty,
-        Sig memory sig,
-        uint256 amount
-    ) public pure returns (bytes32) {
-        return keccak256(abi.encode(royalty, sig, amount));
+    function batchValidateRoyaltyFeeSig(
+        Sig[] memory sigs,
+        Royalty[] memory royaltys,
+        uint256 amount,
+        uint256 sigTime,
+        Sig memory royaltySig
+    ) internal view {
+        bytes32 message = keccak256(
+            abi.encode(sigs, royaltys, amount, sigTime)
+        );
+        require(
+            message.recover(royaltySig.v, royaltySig.r, royaltySig.s) ==
+                royaltyFeeSigner,
+            "incorrect royalty fee signature"
+        );
     }
 
     function prepareMessage(Order memory order) public pure returns (bytes32) {

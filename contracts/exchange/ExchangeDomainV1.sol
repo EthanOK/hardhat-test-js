@@ -54,6 +54,5 @@ contract ExchangeDomainV1 {
         address addressNft;
         /* royalty fee value */
         uint256 royaltyFee;
-        uint256 sigTime;
     }
 }
