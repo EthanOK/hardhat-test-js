@@ -7,15 +7,12 @@ import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-import "../lib/utils/StringLibrary.sol";
-import "../lib/utils/BytesLibrary.sol";
-
 import "./ExchangeDomainV1.sol";
 
 contract NftExchangeV1 is Ownable, ExchangeDomainV1 {
     // using UintLibrary for uint256;
-    using StringLibrary for string;
-    using BytesLibrary for bytes32;
+    // using StringLibrary for string; 
+    using ECDSA for bytes32;
 
     event Exchange(
         address indexed sellToken,
@@ -166,6 +163,8 @@ contract NftExchangeV1 is Ownable, ExchangeDomainV1 {
         );
     }
 
+    function batchExchangeERC721() external payable {}
+
     function transfer_NftToBuyer(
         AssetType assertType,
         address nftAddress,
@@ -258,14 +257,12 @@ contract NftExchangeV1 is Ownable, ExchangeDomainV1 {
         Royalty memory royalty,
         Sig memory sig,
         uint256 amount
-    ) public pure returns (string memory) {
-        return keccak256(abi.encode(royalty, sig, amount)).toString();
+    ) public pure returns (bytes32) {
+        return keccak256(abi.encode(royalty, sig, amount));
     }
 
-    function prepareMessage(
-        Order memory order
-    ) public pure returns (string memory) {
-        return keccak256(abi.encode(order)).toString();
+    function prepareMessage(Order memory order) public pure returns (bytes32) {
+        return keccak256(abi.encode(order));
     }
 
     // only erc1155 call
