@@ -183,7 +183,7 @@ contract NftExchangeV1 is Ownable, ExchangeDomainV1 {
             "amount is wrong"
         );
 
-        // verifiy orders
+        // verify orders
         for (uint256 i = 0; i < amount; i++) {
             require(
                 orders[i].key.sellAsset.token == royaltys[i].addressNft,
@@ -218,8 +218,53 @@ contract NftExchangeV1 is Ownable, ExchangeDomainV1 {
             );
             validateOrderSig(orders[i], sigs[i]);
         }
-
+        // verify RoyaltyFeeSig
         batchValidateRoyaltyFeeSig(sigs, royaltys, amount, sigTime, royaltySig);
+
+        for (uint256 i = 0; i < amount; i++) {
+            uint256 payPrice = orders[i].unitPrice;
+
+            // 用eth购买
+            if (orders[i].key.buyAsset.assetType == AssetType.ETH) {
+                // 验证 msg.value 足量
+                require(msg.value >= payPrice, "ETH insufficient");
+            } else if (orders[i].key.buyAsset.assetType == AssetType.ERC20) {
+                uint256 allowanceAmount = IERC20(orders[i].key.buyAsset.token)
+                    .allowance(buyerAccount, address(this));
+                require(payPrice <= allowanceAmount, "allowance not enough");
+            }
+
+            // transfer nft to buyer
+            transfer_NftToBuyer(
+                orders[i].key.sellAsset.assetType,
+                orders[i].key.sellAsset.token,
+                orders[i].key.owner,
+                buyerAccount,
+                orders[i].key.sellAsset.tokenId,
+                1
+            );
+
+            // transfer to seller  eth or erc20
+            transferEthOrErc20ToSellerAndPlant(
+                orders[i].key.buyAsset.assetType,
+                orders[i].key.buyAsset.token,
+                buyerAccount,
+                orders[i].key.owner,
+                payPrice,
+                royaltys[i].royaltyFee
+            );
+
+            emit Exchange(
+                orders[i].key.sellAsset.token,
+                orders[i].key.sellAsset.tokenId,
+                orders[i].key.owner,
+                orders[i].key.buyAsset.token,
+                buyerAccount,
+                amount,
+                payPrice,
+                royaltys[i].royaltyFee
+            );
+        }
     }
 
     function transfer_NftToBuyer(
