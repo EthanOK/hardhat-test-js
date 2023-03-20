@@ -21,3 +21,12 @@ https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/uti
 
 contract NFT721 is Ownable, SignerRole, IERC721, ERC721Base{}
 ```
+
+NftExchangeV1 contracts-upgradeable
+
+```
+部署顺序：
+1. NftExchange_V1_upgradeable.sol
+2. ProxyAdmin.sol
+3. TransparentUpgradeableProxy.sol (_data is initialize() calldata)
+```
