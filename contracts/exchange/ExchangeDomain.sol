@@ -2,10 +2,14 @@
 pragma solidity >=0.4.22 <0.9.0;
 pragma experimental ABIEncoderV2;
 
-
 contract ExchangeDomain {
-
-    enum AssetType {ETH, ERC20, ERC1155, ERC721, ERC721Deprecated}
+    enum AssetType {
+        ETH,
+        ERC20,
+        ERC1155,
+        ERC721,
+        ERC721Deprecated
+    }
 
     struct Asset {
         address token;
@@ -18,22 +22,18 @@ contract ExchangeDomain {
         address owner;
         /* random number */
         uint salt;
-
         /* what has owner */
         Asset sellAsset;
-
         /* what wants owner */
         Asset buyAsset;
     }
 
     struct Order {
         OrderKey key;
-
         /* how much has owner (in wei, or UINT256_MAX if ERC-721) */
         uint selling;
         /* how much wants owner (in wei, or UINT256_MAX if ERC-721) */
         uint buying;
-
         /* fee for selling */
         uint sellerFee;
     }

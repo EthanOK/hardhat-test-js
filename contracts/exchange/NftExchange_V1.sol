@@ -332,11 +332,9 @@ contract NftExchangeV1 is Ownable, ExchangeDomainV1 {
         Order memory order,
         Sig memory sig
     ) internal pure {
-        require(
-            prepareMessage(order).recover(sig.v, sig.r, sig.s) ==
-                order.key.owner,
-            "incorrect signature"
-        );
+        bytes32 hash = keccak256(abi.encode(order)).toEthSignedMessageHash();
+        address signer = ecrecover(hash, sig.v, sig.r, sig.s);
+        require(signer == order.key.owner, "incorrect order signature");
     }
 
     function validateRoyaltyFeeSig(
@@ -346,12 +344,15 @@ contract NftExchangeV1 is Ownable, ExchangeDomainV1 {
         uint256 sigTime,
         Sig memory royaltySig
     ) internal view {
-        bytes32 message = keccak256(abi.encode(sig, royalty, amount, sigTime));
-        require(
-            message.recover(royaltySig.v, royaltySig.r, royaltySig.s) ==
-                royaltyFeeSigner,
-            "incorrect royalty fee signature"
+        bytes32 hash = keccak256(abi.encode(sig, royalty, amount, sigTime))
+            .toEthSignedMessageHash();
+        address signer = ecrecover(
+            hash,
+            royaltySig.v,
+            royaltySig.r,
+            royaltySig.s
         );
+        require(signer == royaltyFeeSigner, "incorrect royalty fee signature");
     }
 
     function batchValidateRoyaltyFeeSig(
@@ -361,18 +362,15 @@ contract NftExchangeV1 is Ownable, ExchangeDomainV1 {
         uint256 sigTime,
         Sig memory royaltySig
     ) internal view {
-        bytes32 message = keccak256(
-            abi.encode(sigs, royaltys, amount, sigTime)
+        bytes32 hash = keccak256(abi.encode(sigs, royaltys, amount, sigTime))
+            .toEthSignedMessageHash();
+        address signer = ecrecover(
+            hash,
+            royaltySig.v,
+            royaltySig.r,
+            royaltySig.s
         );
-        require(
-            message.recover(royaltySig.v, royaltySig.r, royaltySig.s) ==
-                royaltyFeeSigner,
-            "incorrect royalty fee signature"
-        );
-    }
-
-    function prepareMessage(Order memory order) public pure returns (bytes32) {
-        return keccak256(abi.encode(order));
+        require(signer == royaltyFeeSigner, "incorrect royalty fee signature");
     }
 
     // only erc1155 call
