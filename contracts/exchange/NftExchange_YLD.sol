@@ -27,7 +27,7 @@ abstract contract ExchangeDomain {
 
     struct Asset {
         address token;
-        uint tokenId;
+        uint256 tokenId;
         AssetType assetType;
     }
 
@@ -35,7 +35,7 @@ abstract contract ExchangeDomain {
         /* who signed the order */
         address owner;
         /* random number */
-        uint salt;
+        uint256 salt;
         /* what has owner */
         Asset sellAsset;
         /* what wants owner */
@@ -45,11 +45,11 @@ abstract contract ExchangeDomain {
     struct Order {
         OrderKey key;
         /* how much has owner (in wei, or UINT256_MAX if ERC-721) */
-        uint selling;
+        uint256 selling;
         /* how much wants owner (in wei, or UINT256_MAX if ERC-721) */
-        uint buying;
+        uint256 buying;
         /* fee for selling */
-        uint sellerFee;
+        uint256 sellerFee;
     }
 
     /* An ECDSA signature. */
@@ -170,11 +170,11 @@ contract NftExchange is Ownable, ExchangeDomain {
         Order memory order,
         uint256 buyerFee,
         Sig memory sig
-    ) public pure {
+    ) public view {
         bytes32 hash = keccak256(abi.encode(order, buyerFee));
         hash = ECDSA.toEthSignedMessageHash(hash);
         address signer = ecrecover(hash, sig.v, sig.r, sig.s);
-        require(signer == order.key.owner, "incorrect buyer fee signature");
+        require(signer == buyerFeeSigner, "incorrect buyer fee signature");
     }
 
     function emitBuy(
