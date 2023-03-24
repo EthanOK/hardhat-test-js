@@ -69,17 +69,14 @@ contract NftExchangeV1 is Ownable, ExchangeDomainV1 {
     function exchange(
         Order calldata order,
         Sig calldata sig,
-        Royalty calldata royalty,
+        uint256 royaltyFee,
         uint256 amount,
         uint256 sigTime,
         Sig calldata royaltySig
     ) external payable {
         address buyerAccount = _msgSender();
         require(amount > 0, "amount should > 0");
-        require(
-            order.key.sellAsset.token == royalty.addressNft,
-            "nft contract mismatch"
-        );
+
         require(
             order.startTime <= block.timestamp &&
                 block.timestamp <= order.endTime,
@@ -102,7 +99,7 @@ contract NftExchangeV1 is Ownable, ExchangeDomainV1 {
 
         validateOrderSig(order, sig);
 
-        validateRoyaltyFeeSig(sig, royalty, amount, sigTime, royaltySig);
+        validateRoyaltyFeeSig(order, royaltyFee, sigTime, royaltySig);
 
         if (
             order.key.sellAsset.assetType == AssetType.ERC721Deprecated ||
@@ -117,8 +114,6 @@ contract NftExchangeV1 is Ownable, ExchangeDomainV1 {
                 INTERFACE_ID_ERC1155
             )
         ) {
-            // is 1155
-            // if 1155 验证购买数量
             verifyOrderSales(order.key, order.sellAmount, amount);
         }
 
@@ -151,7 +146,7 @@ contract NftExchangeV1 is Ownable, ExchangeDomainV1 {
             buyerAccount,
             order.key.owner,
             payPrice,
-            royalty.royaltyFee
+            royaltyFee
         );
 
         emit Exchange(
@@ -162,14 +157,14 @@ contract NftExchangeV1 is Ownable, ExchangeDomainV1 {
             buyerAccount,
             amount,
             payPrice,
-            royalty.royaltyFee
+            royaltyFee
         );
     }
 
     function batchExchangeERC721(
         Order[] calldata orders,
         Sig[] calldata sigs,
-        Royalty[] calldata royaltys,
+        uint256[] calldata royaltyFees,
         uint256 amount,
         uint256 sigTime,
         Sig calldata royaltySig
@@ -179,16 +174,12 @@ contract NftExchangeV1 is Ownable, ExchangeDomainV1 {
         require(
             amount > 0 &&
                 orders.length == sigs.length &&
-                orders.length == royaltys.length,
+                orders.length == royaltyFees.length,
             "amount is wrong"
         );
 
         // verify orders
         for (uint256 i = 0; i < amount; i++) {
-            require(
-                orders[i].key.sellAsset.token == royaltys[i].addressNft,
-                "nft contract mismatch"
-            );
             require(
                 orders[i].startTime <= block.timestamp &&
                     block.timestamp <= orders[i].endTime,
@@ -219,7 +210,7 @@ contract NftExchangeV1 is Ownable, ExchangeDomainV1 {
             validateOrderSig(orders[i], sigs[i]);
         }
         // verify RoyaltyFeeSig
-        batchValidateRoyaltyFeeSig(sigs, royaltys, amount, sigTime, royaltySig);
+        batchValidateRoyaltyFeeSig(orders, royaltyFees, sigTime, royaltySig);
 
         for (uint256 i = 0; i < amount; i++) {
             uint256 payPrice = orders[i].unitPrice;
@@ -251,7 +242,7 @@ contract NftExchangeV1 is Ownable, ExchangeDomainV1 {
                 buyerAccount,
                 orders[i].key.owner,
                 payPrice,
-                royaltys[i].royaltyFee
+                royaltyFees[i]
             );
 
             emit Exchange(
@@ -262,7 +253,7 @@ contract NftExchangeV1 is Ownable, ExchangeDomainV1 {
                 buyerAccount,
                 amount,
                 payPrice,
-                royaltys[i].royaltyFee
+                royaltyFees[i]
             );
         }
     }
@@ -338,13 +329,12 @@ contract NftExchangeV1 is Ownable, ExchangeDomainV1 {
     }
 
     function validateRoyaltyFeeSig(
-        Sig memory sig,
-        Royalty memory royalty,
-        uint256 amount,
+        Order memory order,
+        uint256 royaltyFee,
         uint256 sigTime,
         Sig memory royaltySig
     ) internal view {
-        bytes32 hash = keccak256(abi.encode(sig, royalty, amount, sigTime))
+        bytes32 hash = keccak256(abi.encode(order, royaltyFee, sigTime))
             .toEthSignedMessageHash();
         address signer = ecrecover(
             hash,
@@ -356,13 +346,12 @@ contract NftExchangeV1 is Ownable, ExchangeDomainV1 {
     }
 
     function batchValidateRoyaltyFeeSig(
-        Sig[] memory sigs,
-        Royalty[] memory royaltys,
-        uint256 amount,
+        Order[] memory orders,
+        uint256[] memory royaltyFees,
         uint256 sigTime,
         Sig memory royaltySig
     ) internal view {
-        bytes32 hash = keccak256(abi.encode(sigs, royaltys, amount, sigTime))
+        bytes32 hash = keccak256(abi.encode(orders, royaltyFees, sigTime))
             .toEthSignedMessageHash();
         address signer = ecrecover(
             hash,

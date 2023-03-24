@@ -48,11 +48,4 @@ contract ExchangeDomainV1 {
         /* s parameter */
         bytes32 s;
     }
-
-    struct Royalty {
-        /* contract address */
-        address addressNft;
-        /* royalty fee value */
-        uint256 royaltyFee;
-    }
 }
