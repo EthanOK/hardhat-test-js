@@ -63,7 +63,7 @@ abstract contract ExchangeDomain {
     }
 }
 
-contract NftExchange is Ownable, ExchangeDomain {
+contract NftExchangeYLD is Ownable, ExchangeDomain {
     event Buy(
         address indexed sellToken,
         uint256 indexed sellTokenId,
