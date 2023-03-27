@@ -3,6 +3,7 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -13,6 +14,7 @@ contract NftExchangeV1 is Ownable, ExchangeDomainV1 {
     // using UintLibrary for uint256;
     // using StringLibrary for string;
     using ECDSA for bytes32;
+    using SafeERC20 for IERC20;
 
     event Exchange(
         address indexed sellToken,
@@ -301,17 +303,13 @@ contract NftExchangeV1 is Ownable, ExchangeDomainV1 {
             payable(toAccount).transfer(amountOfSeller);
             payable(beneficiary).transfer(amountFee);
         } else if (assertType == AssetType.ERC20) {
-            IERC20(erc20Address).transferFrom(
+            IERC20(erc20Address).safeTransferFrom(
                 fromAccount,
                 toAccount,
                 amountOfSeller
             );
-            IERC20(erc20Address).transferFrom(
-                fromAccount,
-                toAccount,
-                amountOfSeller
-            );
-            IERC20(erc20Address).transferFrom(
+
+            IERC20(erc20Address).safeTransferFrom(
                 fromAccount,
                 beneficiary,
                 amountFee
