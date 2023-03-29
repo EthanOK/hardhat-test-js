@@ -1,13 +1,15 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.18;
+pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 
 abstract contract ExchangeDomainV1 {
     enum AssetType {
@@ -37,7 +39,7 @@ abstract contract ExchangeDomainV1 {
 
     struct Order {
         OrderKey key;
-        /* The total quantity the seller wants to sell */
+        /* The quantity the seller wants to sell */
         uint256 sellAmount;
         /* unit price */
         uint256 unitPrice;
@@ -56,11 +58,6 @@ abstract contract ExchangeDomainV1 {
         /* s parameter */
         bytes32 s;
     }
-}
-
-contract NftExchangeV1 is ExchangeDomainV1, Ownable, ReentrancyGuard {
-    using ECDSA for bytes32;
-    using SafeERC20 for IERC20;
 
     event Buy(
         address indexed sellToken,
@@ -75,6 +72,17 @@ contract NftExchangeV1 is ExchangeDomainV1, Ownable, ReentrancyGuard {
         uint256 payPrice,
         uint256 royaltyFee
     );
+}
+
+contract NftExchangeV1Upgradeable is
+    ExchangeDomainV1,
+    Initializable,
+    OwnableUpgradeable,
+    ReentrancyGuardUpgradeable,
+    PausableUpgradeable
+{
+    using ECDSA for bytes32;
+    using SafeERC20 for IERC20;
 
     bytes4 private constant INTERFACE_ID_ERC721 = 0x80ac58cd;
     bytes4 private constant INTERFACE_ID_ERC1155 = 0xd9b67a26;
@@ -84,14 +92,21 @@ contract NftExchangeV1 is ExchangeDomainV1, Ownable, ReentrancyGuard {
     address public royaltyFeeSigner;
     uint256 public platformFee;
 
-    constructor(
+    constructor() {
+        _disableInitializers();
+    }
+
+    function initialize(
         address payable _beneficiary,
         address _royaltyFeeSigner,
         uint256 _platformFee
-    ) {
+    ) public initializer {
         beneficiary = _beneficiary;
         royaltyFeeSigner = _royaltyFeeSigner;
         platformFee = _platformFee;
+        __Ownable_init();
+        __ReentrancyGuard_init();
+        __Pausable_init();
     }
 
     function setBeneficiary(address payable newBeneficiary) external onlyOwner {
@@ -108,6 +123,15 @@ contract NftExchangeV1 is ExchangeDomainV1, Ownable, ReentrancyGuard {
         platformFee = newPlatformFee;
     }
 
+    function pause() external onlyOwner {
+        _pause();
+    }
+
+    function unpause() external onlyOwner {
+        _unpause();
+    }
+
+    // nft exchange
     function exchange(
         Order calldata order,
         Sig calldata sig,
@@ -115,7 +139,7 @@ contract NftExchangeV1 is ExchangeDomainV1, Ownable, ReentrancyGuard {
         uint256 endTime,
         uint256 royaltyFee,
         Sig calldata royaltySig
-    ) external payable nonReentrant {
+    ) external payable whenNotPaused nonReentrant {
         address buyer = _msgSender();
         require(block.timestamp <= endTime, "royalty sig has expired");
         require(amount > 0, "amount should > 0");
@@ -300,5 +324,10 @@ contract NftExchangeV1 is ExchangeDomainV1, Ownable, ReentrancyGuard {
             amount <= sellAmount && amount <= amountOn,
             "insufficient Sales"
         );
+    }
+
+    // withdraw ether
+    function withdraw(address account) external onlyOwner {
+        payable(account).transfer(address(this).balance);
     }
 }

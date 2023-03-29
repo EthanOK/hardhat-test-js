@@ -70,7 +70,7 @@ contract NftExchangeYLD is Ownable, ReentrancyGuard, ExchangeDomain {
         uint256 indexed sellTokenId,
         uint256 sellAmount,
         uint256 unitPrice,
-        address owner,
+        address seller,
         address buyToken,
         uint256 buyTokenId,
         address buyer,

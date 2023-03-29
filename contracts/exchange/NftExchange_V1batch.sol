@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.18;
+pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -58,7 +58,7 @@ abstract contract ExchangeDomainV1 {
     }
 }
 
-contract NftExchangeV1 is ExchangeDomainV1, Ownable, ReentrancyGuard {
+contract NftExchangeV1 is Ownable, ReentrancyGuard, ExchangeDomainV1 {
     using ECDSA for bytes32;
     using SafeERC20 for IERC20;
 
@@ -72,12 +72,13 @@ contract NftExchangeV1 is ExchangeDomainV1, Ownable, ReentrancyGuard {
         uint256 buyTokenId,
         address buyer,
         uint256 amount,
-        uint256 payPrice,
+        uint256 PriceTotal,
         uint256 royaltyFee
     );
 
     bytes4 private constant INTERFACE_ID_ERC721 = 0x80ac58cd;
     bytes4 private constant INTERFACE_ID_ERC1155 = 0xd9b67a26;
+
     uint256 public constant FEE_10000 = 10000;
 
     address payable public beneficiary;
@@ -115,7 +116,7 @@ contract NftExchangeV1 is ExchangeDomainV1, Ownable, ReentrancyGuard {
         uint256 endTime,
         uint256 royaltyFee,
         Sig calldata royaltySig
-    ) external payable nonReentrant {
+    ) external payable {
         address buyer = _msgSender();
         require(block.timestamp <= endTime, "royalty sig has expired");
         require(amount > 0, "amount should > 0");
@@ -170,7 +171,7 @@ contract NftExchangeV1 is ExchangeDomainV1, Ownable, ReentrancyGuard {
         }
 
         // transfer nft to buyer
-        transferNftToBuyer(
+        transfer_NftToBuyer(
             order.key.sellAsset.assetType,
             order.key.sellAsset.token,
             order.key.owner,
@@ -189,22 +190,116 @@ contract NftExchangeV1 is ExchangeDomainV1, Ownable, ReentrancyGuard {
             royaltyFee
         );
 
-        emit Buy(
-            order.key.sellAsset.token,
-            order.key.sellAsset.tokenId,
-            order.sellAmount,
-            order.unitPrice,
-            order.key.owner,
-            order.key.buyAsset.token,
-            order.key.buyAsset.tokenId,
-            buyer,
-            amount,
-            payPrice,
-            royaltyFee
-        );
+        // emit Exchange(
+        //     order.key.sellAsset.token,
+        //     order.key.sellAsset.tokenId,
+        //     order.key.owner,
+        //     order.key.buyAsset.token,
+        //     buyerAccount,
+        //     amount,
+        //     payPrice,
+        //     royaltyFee
+        // );
     }
 
-    function transferNftToBuyer(
+    // function batchExchangeERC721(
+    //     Order[] calldata orders,
+    //     Sig[] calldata sigs,
+    //     uint256[] calldata royaltyFees,
+    //     uint256 amount,
+    //     uint256 sigTime,
+    //     Sig calldata royaltySig
+    // ) external payable {
+    //     address buyerAccount = _msgSender();
+
+    //     require(
+    //         amount > 0 &&
+    //             orders.length == sigs.length &&
+    //             orders.length == royaltyFees.length,
+    //         "amount is wrong"
+    //     );
+
+    //     // verify orders
+    //     for (uint256 i = 0; i < amount; i++) {
+    //         require(
+    //             orders[i].startTime <= block.timestamp &&
+    //                 block.timestamp <= orders[i].endTime,
+    //             "order has expired"
+    //         );
+
+    //         require(
+    //             block.timestamp <= sigTime + sigEffectiveTime,
+    //             "royalty sig has expired"
+    //         );
+
+    //         require(
+    //             orders[i].key.sellAsset.assetType != AssetType.ETH,
+    //             "ETH is not supported on sell side"
+    //         );
+    //         require(
+    //             orders[i].key.sellAsset.assetType != AssetType.ERC20,
+    //             "ERC20 is not supported on sell side"
+    //         );
+    //         require(
+    //             orders[i].key.sellAsset.assetType ==
+    //                 AssetType.ERC721Deprecated ||
+    //                 IERC165(orders[i].key.sellAsset.token).supportsInterface(
+    //                     INTERFACE_ID_ERC721
+    //                 ),
+    //             "Not ERC721"
+    //         );
+    //         validateOrderSig(orders[i], sigs[i]);
+    //     }
+    //     // verify RoyaltyFeeSig
+    //     batchValidateRoyaltyFeeSig(orders, royaltyFees, sigTime, royaltySig);
+
+    //     for (uint256 i = 0; i < amount; i++) {
+    //         uint256 payPrice = orders[i].unitPrice;
+
+    //         // 用eth购买
+    //         if (orders[i].key.buyAsset.assetType == AssetType.ETH) {
+    //             // 验证 msg.value 足量
+    //             require(msg.value >= payPrice, "ETH insufficient");
+    //         } else if (orders[i].key.buyAsset.assetType == AssetType.ERC20) {
+    //             uint256 allowanceAmount = IERC20(orders[i].key.buyAsset.token)
+    //                 .allowance(buyerAccount, address(this));
+    //             require(payPrice <= allowanceAmount, "allowance not enough");
+    //         }
+
+    //         // transfer nft to buyer
+    //         transfer_NftToBuyer(
+    //             orders[i].key.sellAsset.assetType,
+    //             orders[i].key.sellAsset.token,
+    //             orders[i].key.owner,
+    //             buyerAccount,
+    //             orders[i].key.sellAsset.tokenId,
+    //             1
+    //         );
+
+    //         // transfer to seller  eth or erc20
+    //         transferBuyToken(
+    //             orders[i].key.buyAsset.assetType,
+    //             orders[i].key.buyAsset.token,
+    //             buyerAccount,
+    //             orders[i].key.owner,
+    //             payPrice,
+    //             royaltyFees[i]
+    //         );
+
+    //         emit Exchange(
+    //             orders[i].key.sellAsset.token,
+    //             orders[i].key.sellAsset.tokenId,
+    //             orders[i].key.owner,
+    //             orders[i].key.buyAsset.token,
+    //             buyerAccount,
+    //             amount,
+    //             payPrice,
+    //             royaltyFees[i]
+    //         );
+    //     }
+    // }
+
+    function transfer_NftToBuyer(
         AssetType assertType,
         address nftAddress,
         address fromAccount,
@@ -285,6 +380,23 @@ contract NftExchangeV1 is ExchangeDomainV1, Ownable, ReentrancyGuard {
         );
         require(signer == royaltyFeeSigner, "incorrect royalty fee signature");
     }
+
+    // function batchValidateRoyaltyFeeSig(
+    //     Order[] memory orders,
+    //     uint256[] memory royaltyFees,
+    //     uint256 sigTime,
+    //     Sig memory royaltySig
+    // ) internal view {
+    //     bytes32 hash = keccak256(abi.encode(orders, royaltyFees, sigTime))
+    //         .toEthSignedMessageHash();
+    //     address signer = ecrecover(
+    //         hash,
+    //         royaltySig.v,
+    //         royaltySig.r,
+    //         royaltySig.s
+    //     );
+    //     require(signer == royaltyFeeSigner, "incorrect royalty fee signature");
+    // }
 
     // only erc1155 call
     function verifyOrderSales(
