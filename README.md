@@ -3,6 +3,15 @@
 This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, and a script that deploys that contract.
 
 Try running some of the following tasks:
+verify:
+
+```
+npm install @openzeppelin/contracts
+npm install @openzeppelin/contracts-upgradeable
+npm install dotenv --save
+npm install --save-dev @nomiclabs/hardhat-etherscan
+
+```
 
 ```shell
 npx hardhat help
