@@ -99,13 +99,15 @@ contract NftExchangeV1Upgradeable01 is
     uint256 public platformFee;
 
     constructor() {
-        _disableInitializers();
+        // _disableInitializers();
     }
 
     function initialize(
         address payable _beneficiary,
         address _royaltyFeeSigner,
-        uint256 _platformFee
+        uint256 _platformFee,
+        address _owner,
+        address _operator
     ) public initializer {
         beneficiary = _beneficiary;
         royaltyFeeSigner = _royaltyFeeSigner;
@@ -113,11 +115,11 @@ contract NftExchangeV1Upgradeable01 is
 
         __ReentrancyGuard_init();
         __Pausable_init();
-        __AccessControl_init();
 
+        __AccessControl_init();
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
-        _grantRole(OWNER_ROLE, msg.sender);
-        _grantRole(OPERATOR_ROLE, msg.sender);
+        _grantRole(OWNER_ROLE, _owner);
+        _grantRole(OPERATOR_ROLE, _operator);
     }
 
     function setBeneficiary(
