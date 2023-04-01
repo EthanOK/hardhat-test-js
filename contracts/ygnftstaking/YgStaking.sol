@@ -27,9 +27,11 @@ contract YgStaking is
 
     mapping(uint256 => StakingData) public stakingDatas;
 
-    mapping(address => uint256[]) public stakingTokenIds;
+    mapping(address => uint256[]) private stakingTokenIds;
 
     mapping(uint256 => bool) public orderIsInvalid;
+
+    mapping(address => bool) private operator;
 
     uint128 public accountTotal;
 
@@ -47,6 +49,20 @@ contract YgStaking is
         stakingPeriods = _periods;
     }
 
+    function setOperator(address _account) external onlyOwner {
+        operator[_account] = !operator[_account];
+    }
+
+    function setWithdrawSigner(address _withdrawSigner) external onlyOwner {
+        withdrawSigner = _withdrawSigner;
+    }
+
+    function getStakingTokenIds(
+        address _account
+    ) external view returns (uint256[] memory) {
+        return stakingTokenIds[_account];
+    }
+
     function getStakingPeriods()
         external
         view
@@ -54,10 +70,6 @@ contract YgStaking is
         returns (uint64[3] memory)
     {
         return stakingPeriods;
-    }
-
-    function setWithdrawSigner(address _withdrawSigner) external onlyOwner {
-        withdrawSigner = _withdrawSigner;
     }
 
     function getWithdrawSigner() external view onlyOwner returns (address) {
@@ -91,13 +103,17 @@ contract YgStaking is
             "invalid staking time"
         );
 
-        for (uint256 i = 0; i < length; i++) {
+        for (uint256 i = 0; i < length; ) {
             require(
                 !stakingDatas[_tokenIds[i]].stakedState,
                 "invalid stake state"
             );
 
             require(ygme.ownerOf(_tokenIds[i]) == _account, "invalid owner");
+
+            unchecked {
+                ++i;
+            }
         }
 
         if (stakingTokenIds[_account].length == 0) {
@@ -106,13 +122,13 @@ contract YgStaking is
             }
         }
 
-        for (uint256 i = 0; i < length; i++) {
+        for (uint256 i = 0; i < length; ) {
             uint256 _tokenId = _tokenIds[i];
 
             ygme.safeTransferFrom(_account, address(this), _tokenId);
 
             StakingData memory _data = StakingData({
-                account: _account,
+                owner: _account,
                 startTime: block.timestamp,
                 endTime: block.timestamp + _stakeTime,
                 stakedState: true
@@ -137,6 +153,10 @@ contract YgStaking is
                 _data.startTime,
                 _data.endTime
             );
+
+            unchecked {
+                ++i;
+            }
         }
         return true;
     }
@@ -150,12 +170,12 @@ contract YgStaking is
 
         require(length > 0, "invalid tokenIds");
 
-        for (uint256 i = 0; i < length; i++) {
+        for (uint256 i = 0; i < length; ) {
             uint256 _tokenId = _tokenIds[i];
 
             StakingData storage _data = stakingDatas[_tokenId];
 
-            require(_data.account == _account, "invalid account");
+            require(_data.owner == _account, "invalid account");
 
             require(stakingDatas[_tokenId].stakedState, "invalid stake state");
 
@@ -164,7 +184,7 @@ contract YgStaking is
                 "It's not time to unStake"
             );
 
-            ygme.safeTransferFrom(address(this), _data.account, _tokenId);
+            ygme.safeTransferFrom(address(this), _data.owner, _tokenId);
 
             uint256 _len = stakingTokenIds[_account].length;
 
@@ -193,6 +213,10 @@ contract YgStaking is
             );
 
             delete stakingDatas[_tokenId];
+
+            unchecked {
+                ++i;
+            }
         }
         return true;
     }
@@ -241,5 +265,43 @@ contract YgStaking is
             keccak256(
                 abi.encodePacked("\x19Ethereum Signed Message:\n32", hash)
             );
+    }
+
+    function aggregateStaticCall(
+        Call[] calldata calls
+    ) external view returns (uint256 blockNumber, bytes[] memory returnData) {
+        require(operator[msg.sender], "you're not operator");
+
+        blockNumber = block.number;
+
+        uint256 length = calls.length;
+
+        returnData = new bytes[](length);
+
+        Call calldata call;
+
+        for (uint256 i = 0; i < length; ) {
+            bool success;
+            call = calls[i];
+            (success, returnData[i]) = call.target.staticcall(call.callData);
+            require(success, "Multicall3: call failed");
+            unchecked {
+                ++i;
+            }
+        }
+    }
+
+    function validateSignature(
+        bytes32 hash,
+        Sig calldata sig,
+        address signer
+    ) external view returns (bool) {
+        require(operator[msg.sender], "you're not operator");
+
+        hash = _toEthSignedMessageHash(hash);
+
+        address signer_ = ecrecover(hash, sig.v, sig.r, sig.s);
+
+        return signer == signer_;
     }
 }

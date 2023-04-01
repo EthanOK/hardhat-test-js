@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 abstract contract YgStakingDomain {
     struct StakingData {
-        address account;
+        address owner;
         uint256 startTime;
         uint256 endTime;
         bool stakedState;
@@ -24,6 +24,12 @@ abstract contract YgStakingDomain {
         bytes32 r;
         /* s parameter */
         bytes32 s;
+    }
+
+    // Multi Call
+    struct Call {
+        address target;
+        bytes callData;
     }
 
     event Staking(
