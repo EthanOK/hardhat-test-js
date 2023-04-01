@@ -1,45 +1,52 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
-import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/security/Pausable.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-
-contract YgStakingDomain is Pausable, Ownable {
+abstract contract YgStakingDomain {
     struct StakingData {
         address account;
         uint256 startTime;
         uint256 endTime;
+        bool stakedState;
     }
 
-    uint256[] public stakingPeriods = [30 days, 90 days, 180 days];
-
-    IERC721 public ygme;
-
-    // tokenId staking data
-    mapping(uint256 => StakingData) public stakingDatas;
-
-    mapping(uint256 => bool) public stakedState;
-
-    // account staking tokenId list
-    mapping(address => uint256[]) stakingTokenIds;
-
-    // stake total
-    // ygmeTotal =>
-    // accountTotal => 0x6163636f756e74546f74616c
-
-    mapping(bytes => uint256) public stakeTotals;
-
-    function pause() external onlyOwner {
-        _pause();
+    struct Order {
+        uint256 orderId;
+        address account;
+        uint256 amount;
+        uint256 random;
     }
 
-    function unpause() external onlyOwner {
-        _unpause();
+    /* An ECDSA signature. */
+    struct Sig {
+        /* v parameter */
+        uint8 v;
+        /* r parameter */
+        bytes32 r;
+        /* s parameter */
+        bytes32 s;
     }
+
+    event Staking(
+        address indexed account,
+        uint256 indexed tokenId,
+        address indexed nftContract,
+        uint256 startTime,
+        uint256 endTime
+    );
+
+    event UnStake(
+        address indexed account,
+        uint256 indexed tokenId,
+        address indexed nftContract,
+        uint256 startTime,
+        uint256 real_endTime
+    );
+
+    event WithdrawERC20(
+        uint256 orderId,
+        address erc20,
+        address account,
+        uint256 amount,
+        string random
+    );
 }
