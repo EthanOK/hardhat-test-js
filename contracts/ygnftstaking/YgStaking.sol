@@ -23,6 +23,8 @@ contract YgStaking is
 
     IERC721 public ygme;
 
+    address private withdrawWallet;
+
     address private withdrawSigner;
 
     mapping(uint256 => StakingData) public stakingDatas;
@@ -57,6 +59,10 @@ contract YgStaking is
         withdrawSigner = _withdrawSigner;
     }
 
+    function setWithdrawWallet(address _withdrawWallet) external onlyOwner {
+        withdrawWallet = _withdrawWallet;
+    }
+
     function getStakingTokenIds(
         address _account
     ) external view returns (uint256[] memory) {
@@ -74,6 +80,10 @@ contract YgStaking is
 
     function getWithdrawSigner() external view onlyOwner returns (address) {
         return withdrawSigner;
+    }
+
+    function getWithdrawWallet() external view onlyOwner returns (address) {
+        return withdrawWallet;
     }
 
     constructor(
@@ -243,7 +253,7 @@ contract YgStaking is
 
         orderIsInvalid[orderId] = true;
 
-        IERC20(erc20).safeTransferFrom(address(this), account, amount);
+        IERC20(erc20).safeTransferFrom(withdrawWallet, account, amount);
 
         emit WithdrawERC20(orderId, erc20, account, amount, random);
 
