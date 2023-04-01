@@ -33,7 +33,7 @@ contract YgStaking is
 
     mapping(uint256 => bool) public orderIsInvalid;
 
-    mapping(address => bool) private operator;
+    mapping(address => bool) public operator;
 
     uint128 public accountTotal;
 
@@ -131,8 +131,8 @@ contract YgStaking is
 
             StakingData memory _data = StakingData({
                 owner: _account,
-                startTime: block.timestamp,
-                endTime: block.timestamp + _stakeTime,
+                startTime: uint128(block.timestamp),
+                endTime: uint128(block.timestamp + _stakeTime),
                 stakedState: true
             });
 
