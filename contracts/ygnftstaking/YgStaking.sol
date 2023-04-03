@@ -78,6 +78,7 @@ contract YgStaking is
         return withdrawSigner;
     }
 
+    // todo _periods [30 days, 90 days, 180 days] 1 days = 86400 s
     constructor(
         address _ygme,
         address _withdrawSigner,
