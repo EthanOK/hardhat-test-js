@@ -10,7 +10,7 @@ npm install @openzeppelin/contracts
 npm install @openzeppelin/contracts-upgradeable
 npm install dotenv --save
 npm install --save-dev @nomiclabs/hardhat-etherscan
-
+npm install --save-dev hardhat-docgen
 ```
 
 ```shell
@@ -22,6 +22,7 @@ npx hardhat run scripts/deploy.js --network goerli
 npx hardhat verify --network goerli `contractAddress` `args`
 npx hardhat blocknumber --network goerli
 npx hardhat check
+npx hardhat docgen
 ```
 
 ```
