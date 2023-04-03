@@ -19,6 +19,11 @@ contract YgStaking is
 {
     using SafeERC20 for IERC20;
 
+    modifier onlyOperator() {
+        require(operator[_msgSender()], "you're not operator");
+        _;
+    }
+
     uint64[3] private stakingPeriods;
 
     IERC721 public ygme;
@@ -263,9 +268,12 @@ contract YgStaking is
 
     function aggregateStaticCall(
         Call[] calldata calls
-    ) external view returns (uint256 blockNumber, bytes[] memory returnData) {
-        require(operator[msg.sender], "you're not operator");
-
+    )
+        external
+        view
+        onlyOperator
+        returns (uint256 blockNumber, bytes[] memory returnData)
+    {
         blockNumber = block.number;
 
         uint256 length = calls.length;
@@ -276,9 +284,13 @@ contract YgStaking is
 
         for (uint256 i = 0; i < length; ) {
             bool success;
+
             call = calls[i];
+
             (success, returnData[i]) = call.target.staticcall(call.callData);
+
             require(success, "Multicall3: call failed");
+
             unchecked {
                 ++i;
             }
@@ -289,9 +301,7 @@ contract YgStaking is
         bytes32 hash,
         Sig calldata sig,
         address signer
-    ) external view returns (bool) {
-        require(operator[msg.sender], "you're not operator");
-
+    ) external view onlyOperator returns (bool) {
         hash = _toEthSignedMessageHash(hash);
 
         address signer_ = ecrecover(hash, sig.v, sig.r, sig.s);

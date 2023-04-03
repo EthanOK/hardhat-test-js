@@ -21,7 +21,6 @@ npx hardhat node
 npx hardhat run scripts/deploy.js --network goerli
 npx hardhat verify --network goerli `contractAddress` `args`
 npx hardhat blocknumber --network goerli
-npx hardhat check
 npx hardhat docgen
 ```
 
