@@ -33,9 +33,9 @@ abstract contract ExchangeDomainV1 {
         uint256 sellAmount;
         /* unit price */
         uint256 unitPrice;
-        // oeder startTime
+        // order startTime
         uint256 startTime;
-        // oeder endTime
+        // order endTime
         uint256 endTime;
     }
 

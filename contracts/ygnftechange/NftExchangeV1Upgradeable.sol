@@ -14,9 +14,9 @@ import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 contract NftExchangeV1Upgradeable is
     ExchangeDomainV1,
     Initializable,
-    ReentrancyGuardUpgradeable,
     PausableUpgradeable,
-    OwnableUpgradeable
+    OwnableUpgradeable,
+    ReentrancyGuardUpgradeable
 {
     using SafeERC20 for IERC20;
 

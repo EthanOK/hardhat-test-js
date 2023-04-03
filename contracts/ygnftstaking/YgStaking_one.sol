@@ -58,7 +58,7 @@ abstract contract YgmeStakingDomain {
     );
 }
 
-contract YgmeStaking is
+contract YgmeStaking1 is
     YgmeStakingDomain,
     Pausable,
     Ownable,
