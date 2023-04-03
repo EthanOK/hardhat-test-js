@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "./YgStakingDomain.sol";
+import "./YgStakingDomainV1.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
@@ -10,7 +10,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
-contract YgStaking is
+contract YgStakingOp is
     YgStakingDomain,
     Pausable,
     Ownable,
@@ -127,8 +127,9 @@ contract YgStaking is
             StakingData memory _data = StakingData({
                 owner: _account,
                 stakedState: true,
-                startTime: uint128(block.timestamp),
-                endTime: uint128(block.timestamp + _stakeTime)
+                startTime: uint64(block.timestamp),
+                endTime: uint64(block.timestamp + _stakeTime),
+                index: uint64(stakingTokenIds[_account].length)
             });
 
             stakingDatas[_tokenId] = _data;
@@ -162,18 +163,18 @@ contract YgStaking is
     ) external whenNotPaused nonReentrant returns (bool) {
         uint256 length = _tokenIds.length;
 
-        address _account = _msgSender();
-
         require(length > 0, "invalid tokenIds");
 
-        for (uint256 i = 0; i < length; ++i) {
+        address _account = _msgSender();
+
+        for (uint256 i = 0; i < length; i++) {
             uint256 _tokenId = _tokenIds[i];
 
             StakingData storage _data = stakingDatas[_tokenId];
 
             require(_data.owner == _account, "invalid account");
 
-            require(stakingDatas[_tokenId].stakedState, "invalid stake state");
+            require(_data.stakedState, "invalid stake state");
 
             require(
                 block.timestamp >= _data.endTime,
@@ -182,15 +183,19 @@ contract YgStaking is
 
             uint256 _len = stakingTokenIds[_account].length;
 
-            for (uint256 j = 0; j < _len; ++j) {
-                if (stakingTokenIds[_account][j] == _tokenId) {
-                    stakingTokenIds[_account][j] = stakingTokenIds[_account][
-                        _len - 1
-                    ];
-                    stakingTokenIds[_account].pop();
-                    break;
-                }
+            uint256 lastTokenId = stakingTokenIds[_account][_len - 1];
+
+            if (_tokenId != lastTokenId) {
+                stakingTokenIds[_account][_data.index] = lastTokenId;
+
+                stakingDatas[lastTokenId].index = _data.index;
             }
+
+            stakingTokenIds[_account].pop();
+
+            delete stakingDatas[_tokenId];
+
+            ygme.safeTransferFrom(address(this), _account, _tokenId);
 
             emit UnStake(
                 _account,
@@ -199,10 +204,6 @@ contract YgStaking is
                 _data.startTime,
                 block.timestamp
             );
-
-            delete stakingDatas[_tokenId];
-
-            ygme.safeTransferFrom(address(this), _account, _tokenId);
         }
 
         if (stakingTokenIds[_account].length == 0) {
@@ -210,7 +211,6 @@ contract YgStaking is
         }
 
         ygmeTotal -= uint128(length);
-
         return true;
     }
 
@@ -218,8 +218,6 @@ contract YgStaking is
         bytes calldata data,
         Sig calldata sig
     ) external nonReentrant returns (bool) {
-        require(data.length > 0, "invalid data");
-
         bytes32 hash = keccak256(data);
 
         _verifySignature(hash, sig);
