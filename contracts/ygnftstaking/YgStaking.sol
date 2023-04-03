@@ -44,6 +44,17 @@ contract YgStaking is
 
     uint128 public ygmeTotal;
 
+    // TODO: _periods [30 days, 90 days, 180 days] 1 days = 86400 s
+    constructor(
+        address _ygme,
+        address _withdrawSigner,
+        uint64[3] memory _periods
+    ) {
+        ygme = IERC721(_ygme);
+        withdrawSigner = _withdrawSigner;
+        stakingPeriods = _periods;
+    }
+
     function pause() external onlyOwner {
         _pause();
     }
@@ -81,17 +92,6 @@ contract YgStaking is
 
     function getWithdrawSigner() external view onlyOwner returns (address) {
         return withdrawSigner;
-    }
-
-    // TODO: _periods [30 days, 90 days, 180 days] 1 days = 86400 s
-    constructor(
-        address _ygme,
-        address _withdrawSigner,
-        uint64[3] memory _periods
-    ) {
-        ygme = IERC721(_ygme);
-        withdrawSigner = _withdrawSigner;
-        stakingPeriods = _periods;
     }
 
     function staking(
@@ -238,7 +238,7 @@ contract YgStaking is
 
         require(!orderIsInvalid[orderId], "order is invalid");
 
-        require(account == msg.sender, "caller is not the account");
+        require(account == _msgSender(), "caller is not the account");
 
         orderIsInvalid[orderId] = true;
 
