@@ -76,7 +76,7 @@ contract YgmeStaking1 is
 
     IERC721 public ygme;
 
-    address private withdrawAccount;
+    IERC20 public erc20;
 
     address private withdrawSigner;
 
@@ -95,10 +95,12 @@ contract YgmeStaking1 is
     // TODO: _periods [30 days, 90 days, 180 days] 1 days = 86400 s
     constructor(
         address _ygme,
+        address _erc20,
         address _withdrawSigner,
         uint64[3] memory _periods
     ) {
         ygme = IERC721(_ygme);
+        erc20 = IERC20(_erc20);
         withdrawSigner = _withdrawSigner;
         stakingPeriods = _periods;
     }
@@ -271,11 +273,10 @@ contract YgmeStaking1 is
 
         (
             uint256 orderId,
-            address erc20,
             address account,
             uint256 amount,
             string memory random
-        ) = abi.decode(data, (uint256, address, address, uint256, string));
+        ) = abi.decode(data, (uint256, address, uint256, string));
 
         require(!orderIsInvalid[orderId], "invalid orderId");
 
@@ -283,9 +284,9 @@ contract YgmeStaking1 is
 
         orderIsInvalid[orderId] = true;
 
-        IERC20(erc20).safeTransferFrom(address(this), account, amount);
+        erc20.safeTransferFrom(address(this), account, amount);
 
-        emit WithdrawERC20(orderId, erc20, account, amount, random);
+        emit WithdrawERC20(orderId, address(erc20), account, amount, random);
 
         return true;
     }
@@ -334,15 +335,15 @@ contract YgmeStaking1 is
         }
     }
 
-    function validateSignature(
-        bytes32 hash,
-        Sig calldata sig,
-        address signer
-    ) external view onlyOperator returns (bool) {
-        hash = _toEthSignedMessageHash(hash);
+    // function validateSignature(
+    //     bytes32 hash,
+    //     Sig calldata sig,
+    //     address signer
+    // ) external view onlyOperator returns (bool) {
+    //     hash = _toEthSignedMessageHash(hash);
 
-        address signer_ = ecrecover(hash, sig.v, sig.r, sig.s);
+    //     address signer_ = ecrecover(hash, sig.v, sig.r, sig.s);
 
-        return signer == signer_;
-    }
+    //     return signer == signer_;
+    // }
 }
