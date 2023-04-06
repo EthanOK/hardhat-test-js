@@ -58,7 +58,7 @@ abstract contract YgmeStakingDomain {
     );
 }
 
-contract YgmeStaking1 is
+contract YgmeStaking is
     YgmeStakingDomain,
     Pausable,
     Ownable,
@@ -105,12 +105,12 @@ contract YgmeStaking1 is
         stakingPeriods = _periods;
     }
 
-    function pause() external onlyOwner {
-        _pause();
-    }
-
-    function unpause() external onlyOwner {
-        _unpause();
+    function setPause() external onlyOwner {
+        if (!paused()) {
+            _pause();
+        } else {
+            _unpause();
+        }
     }
 
     function setStakingPeriods(uint64[3] calldata _periods) external onlyOwner {
@@ -284,7 +284,7 @@ contract YgmeStaking1 is
 
         orderIsInvalid[orderId] = true;
 
-        erc20.safeTransferFrom(address(this), account, amount);
+        erc20.safeTransfer(account, amount);
 
         emit WithdrawERC20(orderId, address(erc20), account, amount, random);
 
@@ -334,16 +334,4 @@ contract YgmeStaking1 is
             require(success, "call failed");
         }
     }
-
-    // function validateSignature(
-    //     bytes32 hash,
-    //     Sig calldata sig,
-    //     address signer
-    // ) external view onlyOperator returns (bool) {
-    //     hash = _toEthSignedMessageHash(hash);
-
-    //     address signer_ = ecrecover(hash, sig.v, sig.r, sig.s);
-
-    //     return signer == signer_;
-    // }
 }
