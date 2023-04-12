@@ -80,7 +80,7 @@ contract NftExchangeV2Upgradeable is
 
         require(block.timestamp <= endTime, "royalty sig has expired");
 
-        require(amount > 0, "amount should > 0");
+        require(amount > 0, "amount cannot be zero");
 
         require(
             order.startTime <= block.timestamp &&
@@ -112,7 +112,7 @@ contract NftExchangeV2Upgradeable is
                 INTERFACE_ID_ERC721
             )
         ) {
-            amount = 1;
+            require(amount == 1, "invalid ERC721 amount");
         } else if (
             order.key.sellAsset.assetType == AssetType.ERC1155 ||
             IERC165(order.key.sellAsset.token).supportsInterface(
