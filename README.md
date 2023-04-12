@@ -24,6 +24,8 @@ npx hardhat blocknumber --network goerli
 npx hardhat docgen
 ```
 
+npx hardhat verify --network goerli 0xB4F9847Bc4A13c101ae6C0Dac2a8c113e7263D17
+
 ```
 Multicall
 https://github.com/makerdao/multicall

@@ -3,6 +3,7 @@ require("dotenv").config();
 require("hardhat-contract-sizer");
 require("hardhat-docgen");
 
+// viaIR: true,
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
   solidity: {
@@ -29,7 +30,7 @@ module.exports = {
   },
   etherscan: {
     // BSC_API_KEY ETHERSCAN_API_KEY
-    apiKey: process.env.BSC_API_KEY,
+    apiKey: process.env.ETHERSCAN_API_KEY,
   },
 
   contractSizer: {
