@@ -11,7 +11,7 @@ import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/security/PausableUpgradeable.sol";
 
-contract NftExchangeV2Upgradeable is
+contract NftExchangeV1UpgradeableTest is
     ExchangeDomainV1,
     Initializable,
     PausableUpgradeable,
@@ -19,6 +19,14 @@ contract NftExchangeV2Upgradeable is
     ReentrancyGuardUpgradeable
 {
     using SafeERC20 for IERC20;
+    event ExchangeMul(
+        Order[] orders,
+        Sig[] sigs,
+        uint256[] amounts,
+        uint256 endTime,
+        uint256[] royaltyFees,
+        Sig royaltySig
+    );
 
     bytes4 private constant INTERFACE_ID_ERC721 = 0x80ac58cd;
     bytes4 private constant INTERFACE_ID_ERC1155 = 0xd9b67a26;
@@ -56,16 +64,16 @@ contract NftExchangeV2Upgradeable is
         platformFee = newPlatformFee;
     }
 
-    function getRoyaltyFeeSigner() external view returns (address) {
+    function getRoyaltyFeeSigner() external view onlyOwner returns (address) {
         return royaltyFeeSigner;
     }
 
-    function setPause() external onlyOwner {
-        if (!paused()) {
-            _pause();
-        } else {
-            _unpause();
-        }
+    function pause() external onlyOwner {
+        _pause();
+    }
+
+    function unpause() external onlyOwner {
+        _unpause();
     }
 
     function exchange(
@@ -75,12 +83,12 @@ contract NftExchangeV2Upgradeable is
         uint256 endTime,
         uint256 royaltyFee,
         Sig calldata royaltySig
-    ) external payable whenNotPaused nonReentrant returns (bool) {
+    ) external payable whenNotPaused nonReentrant {
         address buyer = _msgSender();
 
         require(block.timestamp <= endTime, "royalty sig has expired");
 
-        require(amount > 0, "amount cannot be zero");
+        require(amount > 0, "amount should > 0");
 
         require(
             order.startTime <= block.timestamp &&
@@ -112,7 +120,7 @@ contract NftExchangeV2Upgradeable is
                 INTERFACE_ID_ERC721
             )
         ) {
-            require(amount == 1, "invalid ERC721 amount");
+            amount = 1;
         } else if (
             order.key.sellAsset.assetType == AssetType.ERC1155 ||
             IERC165(order.key.sellAsset.token).supportsInterface(
@@ -141,7 +149,7 @@ contract NftExchangeV2Upgradeable is
             amount
         );
 
-        uint256 _totalFeeETH = _transferBuyTokenToSeller(
+        _transferBuyTokenToSeller(
             order.key.buyAsset.assetType,
             order.key.buyAsset.token,
             buyer,
@@ -163,12 +171,6 @@ contract NftExchangeV2Upgradeable is
             payPrice,
             royaltyFee
         );
-
-        if (_totalFeeETH > 0) {
-            payable(beneficiary).transfer(_totalFeeETH);
-        }
-
-        return true;
     }
 
     function exchangeMul(
@@ -178,123 +180,15 @@ contract NftExchangeV2Upgradeable is
         uint256 endTime,
         uint256[] calldata royaltyFees,
         Sig calldata royaltySig
-    ) external payable whenNotPaused nonReentrant returns (bool) {
-        address buyer = _msgSender();
-
-        uint256 len = orders.length;
-
-        require(
-            len > 0 &&
-                len == sigs.length &&
-                len == amounts.length &&
-                len == royaltyFees.length,
-            "invalid length"
+    ) external payable returns (bool) {
+        emit ExchangeMul(
+            orders,
+            sigs,
+            amounts,
+            endTime,
+            royaltyFees,
+            royaltySig
         );
-
-        require(block.timestamp <= endTime, "royalty sig has expired");
-
-        _validateRoyaltyFeeSigMul(orders, royaltyFees, endTime, royaltySig);
-
-        uint256 totalFeeETH;
-
-        for (uint256 i = 0; i < len; ++i) {
-            require(amounts[i] > 0, "amount should > 0");
-
-            require(
-                orders[i].startTime <= block.timestamp &&
-                    block.timestamp <= orders[i].endTime,
-                "order has expired"
-            );
-
-            require(
-                orders[i].key.sellAsset.assetType == AssetType.ERC721 ||
-                    orders[i].key.sellAsset.assetType ==
-                    AssetType.ERC721Deprecated ||
-                    orders[i].key.sellAsset.assetType == AssetType.ERC1155,
-                "sell asset type must NFT"
-            );
-
-            require(
-                orders[i].key.buyAsset.assetType == AssetType.ETH ||
-                    orders[i].key.buyAsset.assetType == AssetType.ERC20,
-                "buy asset type must ETH or ERC20"
-            );
-
-            _validateOrderSig(orders[i], sigs[i]);
-
-            if (
-                orders[i].key.sellAsset.assetType == AssetType.ERC721 ||
-                orders[i].key.sellAsset.assetType ==
-                AssetType.ERC721Deprecated ||
-                IERC165(orders[i].key.sellAsset.token).supportsInterface(
-                    INTERFACE_ID_ERC721
-                )
-            ) {
-                require(amounts[i] == 1, "invalid ERC721 amount");
-            } else if (
-                orders[i].key.sellAsset.assetType == AssetType.ERC1155 ||
-                IERC165(orders[i].key.sellAsset.token).supportsInterface(
-                    INTERFACE_ID_ERC1155
-                )
-            ) {
-                _verifyOrderAmount(
-                    orders[i].key,
-                    orders[i].sellAmount,
-                    amounts[i]
-                );
-            }
-
-            uint256 payPrice = orders[i].unitPrice * amounts[i];
-
-            if (orders[i].key.buyAsset.assetType == AssetType.ETH) {
-                require(msg.value >= payPrice, "ETH insufficient");
-            } else if (orders[i].key.buyAsset.assetType == AssetType.ERC20) {
-                uint256 allowanceAmount = IERC20(orders[i].key.buyAsset.token)
-                    .allowance(buyer, address(this));
-                require(payPrice <= allowanceAmount, "allowance not enough");
-            }
-
-            _transferNftToBuyer(
-                orders[i].key.sellAsset.assetType,
-                orders[i].key.sellAsset.token,
-                orders[i].key.owner,
-                buyer,
-                orders[i].key.sellAsset.tokenId,
-                amounts[i]
-            );
-
-            uint256 _totalFeeETH = _transferBuyTokenToSeller(
-                orders[i].key.buyAsset.assetType,
-                orders[i].key.buyAsset.token,
-                buyer,
-                orders[i].key.owner,
-                payPrice,
-                royaltyFees[i]
-            );
-
-            if (_totalFeeETH > 0) {
-                totalFeeETH += _totalFeeETH;
-            }
-
-            emit Exchange(
-                orders[i].key.sellAsset.token,
-                orders[i].key.sellAsset.tokenId,
-                orders[i].sellAmount,
-                orders[i].unitPrice,
-                orders[i].key.owner,
-                orders[i].key.buyAsset.token,
-                orders[i].key.buyAsset.tokenId,
-                buyer,
-                amounts[i],
-                payPrice,
-                royaltyFees[i]
-            );
-        }
-
-        if (totalFeeETH > 0) {
-            payable(beneficiary).transfer(totalFeeETH);
-        }
-
         return true;
     }
 
@@ -332,15 +226,14 @@ contract NftExchangeV2Upgradeable is
         address toAccount,
         uint256 payAmount,
         uint256 royaltyFee
-    ) internal returns (uint256 totalFeeETH) {
+    ) internal {
         uint256 totalFee = ((royaltyFee + platformFee) * payAmount) / FEE_10000;
 
         uint256 actualPrice = payAmount - totalFee;
 
         if (assertType == AssetType.ETH) {
             payable(toAccount).transfer(actualPrice);
-            // payable(beneficiary).transfer(totalFee);
-            totalFeeETH = totalFee;
+            payable(beneficiary).transfer(totalFee);
         } else if (assertType == AssetType.ERC20) {
             IERC20(erc20Address).safeTransferFrom(
                 fromAccount,
@@ -352,7 +245,6 @@ contract NftExchangeV2Upgradeable is
                 beneficiary,
                 totalFee
             );
-            totalFeeETH = 0;
         }
     }
 
@@ -367,29 +259,12 @@ contract NftExchangeV2Upgradeable is
     }
 
     function _validateRoyaltyFeeSig(
-        Order calldata order,
+        Order memory order,
         uint256 royaltyFee,
         uint256 endTime,
-        Sig calldata royaltySig
+        Sig memory royaltySig
     ) internal view {
         bytes32 hash = keccak256(abi.encode(order, royaltyFee, endTime));
-        hash = _toEthSignedMessageHash(hash);
-        address signer = ecrecover(
-            hash,
-            royaltySig.v,
-            royaltySig.r,
-            royaltySig.s
-        );
-        require(signer == royaltyFeeSigner, "incorrect royalty fee signature");
-    }
-
-    function _validateRoyaltyFeeSigMul(
-        Order[] calldata orders,
-        uint256[] calldata royaltyFees,
-        uint256 endTime,
-        Sig calldata royaltySig
-    ) internal view {
-        bytes32 hash = keccak256(abi.encode(orders, royaltyFees, endTime));
         hash = _toEthSignedMessageHash(hash);
         address signer = ecrecover(
             hash,

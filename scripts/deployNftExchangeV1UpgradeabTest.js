@@ -8,7 +8,7 @@ const hre = require("hardhat");
 
 async function main() {
   const NFTExchange = await hre.ethers.getContractFactory(
-    "NftExchangeV2Upgradeable"
+    "NftExchangeV1UpgradeableTest"
   );
   const nftExchange = await NFTExchange.deploy();
 
@@ -24,6 +24,6 @@ main().catch((error) => {
   process.exitCode = 1;
 });
 
-// npx hardhat run scripts/deployNftExchangeV2Upgradeable.js --network goerli
+// npx hardhat run scripts/deployNftExchangeV1UpgradeabTest.js --network goerli
 // npx hardhat verify --network goerli `contractAddress` `args`
-// npx hardhat verify --network goerli 0x14251AcD48e4d4d020DBE0b6E389005452ABC090
+// npx hardhat verify --network goerli 0xFF3a1B8e4116CF41b1ba3E926Ba91dEf776C82C0
