@@ -27,6 +27,11 @@ module.exports = {
       chainId: 97,
       accounts: [process.env.PRIVATE_KEY],
     },
+    sepolia: {
+      url: process.env.ALCHEMY_SEPOLIA_URL,
+      chainId: 11155111,
+      accounts: [process.env.PRIVATE_KEY],
+    },
   },
   etherscan: {
     // BSC_API_KEY ETHERSCAN_API_KEY
@@ -38,11 +43,11 @@ module.exports = {
     runOnCompile: true,
     disambiguatePaths: false,
   },
-  docgen: {
-    path: "./docs",
-    clear: true,
-    runOnCompile: true,
-  },
+  // docgen: {
+  //   path: "./docs",
+  //   clear: true,
+  //   runOnCompile: true,
+  // },
 };
 
 task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
