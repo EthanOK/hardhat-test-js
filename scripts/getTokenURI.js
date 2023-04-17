@@ -11,3 +11,4 @@ async function main() {
 }
 
 main();
+// node scripts/getTokenURI.js
