@@ -9,7 +9,7 @@ function getData(address, url) {
   url =
     url +
     `/api?module=account&action=tokennfttx&contractaddress=${address}&address=${account_0x0}&startblock=0&endblock=latest&sort=asc&apikey=${apiKey}`;
-  // console.log(url);
+  console.log(url);
   return axios
     .get(url)
     .then((response) => {
