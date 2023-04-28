@@ -3,7 +3,7 @@ const BigNumber = ethers.BigNumber;
 const gr = require("graphql-request");
 const { request, gql } = gr;
 const tokenId =
-  "110363799599573736734551540813868541250290672745665884892129987155663208250196";
+  "113177599944122767376816998014876625207336927074253397636621559694683682824270";
 // Should return 0xaf2caa1c2ca1d027f1ac823b529d0a67cd144264b2789fa2ea4d63a67c7103cc
 const labelHash = BigNumber.from(tokenId).toHexString();
 

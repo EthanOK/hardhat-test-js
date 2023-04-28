@@ -5,18 +5,27 @@ const provider = new ethers.providers.JsonRpcProvider(
   process.env.ALCHEMY_MAINNET_URL
 );
 const address = "0xb5425ebed48d8c859a19a34463b6df9437974d1b";
+const name = "ricmoo.eth";
 
 async function getAddressENSName(address) {
-  // 查询与给定地址相关联的ENS域名
+  //in 11.099 seconds
   const ensName = await provider.lookupAddress(address);
 
-  return ensName;
+  console.log(ensName);
 }
-
-getAddressENSName(address)
-  .then((ensName) => {
-    console.log("ENS Name: ", ensName);
-  })
-  .catch((error) => {
-    console.log("Error: ", error);
-  });
+async function getAddressByENSName1(name) {
+  //in 6.616 seconds
+  const addressByENS = await provider.resolveName("ricmoo.eth");
+  console.log(addressByENS);
+}
+async function getAddressByENSName(name) {
+  // in 6.416 seconds
+  const resolver = await provider.getResolver(name);
+  console.log(await resolver.getAddress());
+}
+async function main() {
+  // getAddressByENSName(name);
+  // getAddressENSName(address);
+  getAddressByENSName(name);
+}
+main();
