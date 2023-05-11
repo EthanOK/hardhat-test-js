@@ -31,6 +31,7 @@
     "ethers": "5.4",
     "ethers-multicall": "^0.2.3",
     "graphql-request": "^6.0.0",
+    "opensea-js": "^5.0.0",
     "web3": "^1.9.0"
   }
 }
