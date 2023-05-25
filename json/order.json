@@ -1,0 +1,226 @@
+{
+  "createdDate": "2023-05-12T05:03:20.384622",
+  "closingDate": "2023-06-09T05:31:51",
+  "listingTime": 1683867798,
+  "expirationTime": 1686288711,
+  "orderHash": "0xf7c3dfe3759527781b60cb439128c58a35c0ea0d283386a21f55eb8f50266c45",
+  "maker": {
+    "address": "0x73bb185df8c7ddc130f594e0fcdc0297658b51cf",
+    "config": "",
+    "profileImgUrl": "https://storage.googleapis.com/opensea-static/opensea-profile/33.png",
+    "user": {}
+  },
+  "taker": null,
+  "protocolData": {
+    "parameters": {
+      "offerer": "0x73bb185df8c7ddc130f594e0fcdc0297658b51cf",
+      "offer": [
+        {
+          "itemType": 2,
+          "token": "0x0FCBD68251819928C8f6D182fC04bE733fA94170",
+          "identifierOrCriteria": "3390",
+          "startAmount": "1",
+          "endAmount": "1"
+        }
+      ],
+      "consideration": [
+        {
+          "itemType": 0,
+          "token": "0x0000000000000000000000000000000000000000",
+          "identifierOrCriteria": "0",
+          "startAmount": "55500000000000000",
+          "endAmount": "55500000000000000",
+          "recipient": "0x73bb185Df8c7Ddc130F594E0fCDc0297658B51CF"
+        },
+        {
+          "itemType": 0,
+          "token": "0x0000000000000000000000000000000000000000",
+          "identifierOrCriteria": "0",
+          "startAmount": "1500000000000000",
+          "endAmount": "1500000000000000",
+          "recipient": "0x0000a26b00c1F0DF003000390027140000fAa719"
+        },
+        {
+          "itemType": 0,
+          "token": "0x0000000000000000000000000000000000000000",
+          "identifierOrCriteria": "0",
+          "startAmount": "3000000000000000",
+          "endAmount": "3000000000000000",
+          "recipient": "0x56d4101F5Ee2E5F253aA9e3471a5C08C0fFC87D5"
+        }
+      ],
+      "startTime": "1683867798",
+      "endTime": "1686288711",
+      "orderType": 0,
+      "zone": "0x004C00500000aD104D7DBd00e3ae0A5C00560C00",
+      "zoneHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+      "salt": "0x360c6ebe00000000000000000000000000000000000000005d6cee6ae1bed7e6",
+      "conduitKey": "0x0000007b02230091a7ed01230072f7006a004d60a8d4e71d599b8104250f0000",
+      "totalOriginalConsiderationItems": 3,
+      "counter": 0
+    },
+    "signature": null
+  },
+  "protocolAddress": "0x00000000000000adc04c56bf30ac9d3c0aaf14dc",
+  "currentPrice": "60000000000000000",
+  "makerFees": [
+    {
+      "account": {
+        "address": "0x0000a26b00c1f0df003000390027140000faa719",
+        "config": "",
+        "profileImgUrl": "https://storage.googleapis.com/opensea-static/opensea-profile/29.png",
+        "user": null
+      },
+      "basisPoints": "250"
+    },
+    {
+      "account": {
+        "address": "0x56d4101f5ee2e5f253aa9e3471a5c08c0ffc87d5",
+        "config": "",
+        "profileImgUrl": "https://storage.googleapis.com/opensea-static/opensea-profile/14.png",
+        "user": {}
+      },
+      "basisPoints": "500"
+    }
+  ],
+  "takerFees": [],
+  "side": "ask",
+  "orderType": "basic",
+  "cancelled": false,
+  "finalized": false,
+  "markedInvalid": false,
+  "makerAssetBundle": {
+    "maker": null,
+    "assets": [
+      {
+        "tokenId": "3390",
+        "tokenAddress": "0x0fcbd68251819928c8f6d182fc04be733fa94170",
+        "name": "LofiPepe #3390",
+        "description": "6,969 PFP Memes made wit luls ^_^ We are a group of $pepe bulls taking control of the meme market. Our vision is to promote $pepe and support the memetic online art movement into the traditional art marketplace",
+        "owner": null,
+        "assetContract": {
+          "name": "LO-FI PEPE",
+          "description": "6,969 PFP Memes made wit luls ^_^ We are a group of $pepe bulls taking control of the meme market. Our vision is to promote $pepe and support the memetic online art movement into the traditional art marketplace",
+          "type": "non-fungible",
+          "schemaName": "ERC721",
+          "address": "0x0fcbd68251819928c8f6d182fc04be733fa94170",
+          "tokenSymbol": "LOFI",
+          "buyerFeeBasisPoints": 0,
+          "sellerFeeBasisPoints": 750,
+          "openseaBuyerFeeBasisPoints": 0,
+          "openseaSellerFeeBasisPoints": 250,
+          "devBuyerFeeBasisPoints": 0,
+          "devSellerFeeBasisPoints": 500,
+          "imageUrl": "https://i.seadn.io/gcs/files/1ebd7dc64542260fb412f383617969b3.gif?w=500&auto=format",
+          "externalLink": "http://lofipepe.com"
+        },
+        "collection": {
+          "createdDate": null,
+          "name": "LO-FI PEPE",
+          "description": "6,969 PFP Memes made wit luls ^_^ We are a group of $pepe bulls taking control of the meme market. Our vision is to promote $pepe and support the memetic online art movement into the traditional art marketplace",
+          "slug": "lofipepe",
+          "hidden": false,
+          "featured": false,
+          "featuredImageUrl": null,
+          "displayData": { "card_display_style": "contain", "images": null },
+          "paymentTokens": [],
+          "openseaBuyerFeeBasisPoints": 0,
+          "openseaSellerFeeBasisPoints": 250,
+          "devBuyerFeeBasisPoints": 0,
+          "devSellerFeeBasisPoints": 500,
+          "payoutAddress": "0x56d4101f5ee2e5f253aa9e3471a5c08c0ffc87d5",
+          "imageUrl": "https://i.seadn.io/gcs/files/1ebd7dc64542260fb412f383617969b3.gif?w=500&auto=format",
+          "largeImageUrl": null,
+          "externalLink": "http://lofipepe.com",
+          "wikiLink": null,
+          "fees": { "openseaFees": {}, "sellerFees": {} }
+        },
+        "orders": null,
+        "sellOrders": null,
+        "buyOrders": null,
+        "imageUrl": "https://i.seadn.io/gcs/files/931418c1cfad78e1d43d59d1246428cf.png?w=500&auto=format",
+        "imagePreviewUrl": "https://i.seadn.io/gcs/files/931418c1cfad78e1d43d59d1246428cf.png?w=500&auto=format",
+        "imageUrlOriginal": "ipfs://QmNwy2gRBumFRcwgAs6U2U3y8sHZkNdvmyPg6XxkN9gxqu/3390.png",
+        "imageUrlThumbnail": "https://i.seadn.io/gcs/files/931418c1cfad78e1d43d59d1246428cf.png?w=500&auto=format",
+        "externalLink": null,
+        "openseaLink": "https://opensea.io/assets/ethereum/0x0fcbd68251819928c8f6d182fc04be733fa94170/3390",
+        "numSales": 1,
+        "lastSale": null,
+        "backgroundColor": null
+      }
+    ],
+    "name": null,
+    "slug": null,
+    "description": null,
+    "externalLink": null,
+    "permalink": null,
+    "sellOrders": null
+  },
+  "takerAssetBundle": {
+    "maker": null,
+    "assets": [
+      {
+        "tokenId": "0",
+        "tokenAddress": "0x0000000000000000000000000000000000000000",
+        "name": "Ether",
+        "description": "",
+        "owner": null,
+        "assetContract": {
+          "name": "Ether",
+          "description": null,
+          "type": "fungible",
+          "schemaName": "ERC20",
+          "address": "0x0000000000000000000000000000000000000000",
+          "tokenSymbol": "ETH",
+          "buyerFeeBasisPoints": 0,
+          "sellerFeeBasisPoints": 250,
+          "openseaBuyerFeeBasisPoints": 0,
+          "openseaSellerFeeBasisPoints": 250,
+          "devBuyerFeeBasisPoints": 0,
+          "devSellerFeeBasisPoints": 0,
+          "imageUrl": null,
+          "externalLink": null
+        },
+        "collection": {
+          "createdDate": null,
+          "name": "OpenSea PaymentAssets",
+          "description": null,
+          "slug": "opensea-paymentassets",
+          "hidden": true,
+          "featured": false,
+          "featuredImageUrl": null,
+          "displayData": { "card_display_style": "contain", "images": [] },
+          "paymentTokens": [],
+          "openseaBuyerFeeBasisPoints": 0,
+          "openseaSellerFeeBasisPoints": 250,
+          "devBuyerFeeBasisPoints": 0,
+          "devSellerFeeBasisPoints": 0,
+          "payoutAddress": null,
+          "imageUrl": null,
+          "largeImageUrl": null,
+          "externalLink": null,
+          "wikiLink": null,
+          "fees": { "openseaFees": {}, "sellerFees": {} }
+        },
+        "orders": null,
+        "sellOrders": null,
+        "buyOrders": null,
+        "imageUrl": "https://openseauserdata.com/files/6f8e2979d428180222796ff4a33ab929.svg",
+        "imagePreviewUrl": "https://openseauserdata.com/files/6f8e2979d428180222796ff4a33ab929.svg",
+        "imageUrlOriginal": "https://openseauserdata.com/files/6f8e2979d428180222796ff4a33ab929.svg",
+        "imageUrlThumbnail": "https://openseauserdata.com/files/6f8e2979d428180222796ff4a33ab929.svg",
+        "externalLink": null,
+        "openseaLink": "https://opensea.io/assets/ethereum/0x0000000000000000000000000000000000000000/0",
+        "numSales": 4,
+        "lastSale": null,
+        "backgroundColor": null
+      }
+    ],
+    "name": null,
+    "slug": null,
+    "description": null,
+    "externalLink": null,
+    "permalink": null,
+    "sellOrders": null
+  }
+}

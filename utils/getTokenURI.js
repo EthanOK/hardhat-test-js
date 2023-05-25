@@ -94,6 +94,7 @@ function getStaticcallsOftokenURI(address, tokenIds) {
       callData: calculateCalldata(sselector_, paramsType_, [tokenIds[i]]),
     });
   }
+
   return callstruct;
 }
 

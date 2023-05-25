@@ -22,6 +22,7 @@
   },
   "dependencies": {
     "@ethersproject/address": "^5.7.0",
+    "@opensea/stream-js": "^0.0.26",
     "@openzeppelin/contracts": "^4.8.0",
     "@openzeppelin/contracts-upgradeable": "^4.8.2",
     "alchemy-sdk": "^2.8.0",
@@ -32,6 +33,8 @@
     "ethers-multicall": "^0.2.3",
     "graphql-request": "^6.0.0",
     "opensea-js": "^5.0.0",
-    "web3": "^1.9.0"
+    "truffle-flattener": "^1.6.0",
+    "web3": "^1.9.0",
+    "ws": "^8.13.0"
   }
 }
