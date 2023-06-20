@@ -7,7 +7,7 @@ const provider = new ethers.providers.JsonRpcProvider(
 const address = "0xb5425ebed48d8c859a19a34463b6df9437974d1b";
 const name = "ricmoo.eth";
 
-async function getAddressENSName(address) {
+async function getENSNameByAddress(address) {
   //in 11.099 seconds
   const ensName = await provider.lookupAddress(address);
 
@@ -24,8 +24,8 @@ async function getAddressByENSName(name) {
   console.log(await resolver.getAddress());
 }
 async function main() {
-  // getAddressByENSName(name);
-  // getAddressENSName(address);
-  getAddressByENSName(name);
+  await getENSNameByAddress(address);
+
+  await getAddressByENSName(name);
 }
 main();
