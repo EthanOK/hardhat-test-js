@@ -294,6 +294,7 @@ async function getEthPriceUSD() {
   const contract = new ethers.Contract(eth_usd, abi, provider);
 
   const result = await contract.latestRoundData();
+  console.log(result);
 
   let time = result.updatedAt.toNumber();
   const date = new Date(time * 1000);
