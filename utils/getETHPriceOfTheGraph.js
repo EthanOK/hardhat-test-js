@@ -22,7 +22,11 @@ async function getEthPriceUSD() {
     })
     .catch((err) => console.error(err));
   const ethPriceUSD = result.data.data.bundles[0].ethPriceUSD;
+  let price = parseFloat(ethPriceUSD);
   console.log(`${ethPriceUSD} USD`);
+
+  var priceFixed4 = price.toFixed(4);
+  console.log(`ETH: ${priceFixed4} USD`);
 }
 
 getEthPriceUSD();
