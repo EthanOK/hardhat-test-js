@@ -17,6 +17,10 @@ module.exports = {
     },
   },
   networks: {
+    phalcon: {
+      url: process.env.PHALCON_FORK_RPC,
+      accounts: [process.env.PRIVATE_KEY],
+    },
     goerli: {
       url: process.env.ALCHEMY_GOERLI_URL,
       chainId: 5,
@@ -35,7 +39,22 @@ module.exports = {
   },
   etherscan: {
     // BSC_API_KEY ETHERSCAN_API_KEY
-    apiKey: process.env.ETHERSCAN_API_KEY,
+    // apiKey: process.env.ETHERSCAN_API_KEY,
+    apiKey: {
+      phalcon: process.env.PHALCON_ACCESSS_KEY,
+      goerli: process.env.ETHERSCAN_API_KEY,
+      tbsc: process.env.BSC_API_KEY,
+    },
+    customChains: [
+      {
+        network: "phalcon",
+        chainId: 1,
+        urls: {
+          apiURL: process.env.PHALCON_FORK_APIURL,
+          browserURL: "https://etherscan.io/",
+        },
+      },
+    ],
   },
 
   contractSizer: {
