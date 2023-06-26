@@ -269,7 +269,7 @@ async function main() {
       },
     ];
 
-    let [blockNumber_, returnData] = await Multicall2.aggregateStaticCall(
+    let [blockNumber_, returnData] = await Multicall2.callStatic.aggregate(
       staticcalls
     );
 
@@ -296,8 +296,8 @@ async function main() {
       decimals
     );
     console.log(`balanceOf(owner): ${balanceOf_owner_usdt} ${symbol}`);
-  } catch {
-    console.log("error");
+  } catch (error) {
+    console.log(error);
   }
 }
 

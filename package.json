@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "demo",
   "main": "index.js",
+ 
   "scripts": {
     "multicall": "npx hardhat run scripts/multicall.js",
     "compile": "npx hardhat compile",
@@ -33,6 +34,7 @@
     "ethers": "5.4",
     "ethers-multicall": "^0.2.3",
     "graphql-request": "^6.0.0",
+    "node-fetch": "^3.3.1",
     "opensea-js": "^5.0.0",
     "truffle-flattener": "^1.6.0",
     "web3": "^1.9.0",
