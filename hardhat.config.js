@@ -42,8 +42,11 @@ module.exports = {
     // apiKey: process.env.ETHERSCAN_API_KEY,
     apiKey: {
       phalcon: process.env.PHALCON_ACCESSS_KEY,
+      mainnet: process.env.ETHERSCAN_API_KEY,
       goerli: process.env.ETHERSCAN_API_KEY,
-      tbsc: process.env.BSC_API_KEY,
+      sepolia: process.env.ETHERSCAN_API_KEY,
+      bsc: process.env.BSC_API_KEY,
+      bscTestnet: process.env.BSC_API_KEY,
     },
     customChains: [
       {

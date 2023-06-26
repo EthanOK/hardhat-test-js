@@ -22,5 +22,8 @@ main().catch((error) => {
   process.exitCode = 1;
 });
 
+// npx hardhat run scripts/deployCounter.js --network goerli
+// npx hardhat verify --network goerli 0x57635F4854Ae8B74cEA760E8EF25E30e9755b5c2 100
+
 // npx hardhat run scripts/deployCounter.js --network phalcon
 // npx hardhat verify --network phalcon 0xB6D0c44E1590D6fF9D15200f688eeADD9A836958 100
