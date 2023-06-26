@@ -32,6 +32,11 @@ npx hardhat verify --network goerli 0xB4F9847Bc4A13c101ae6C0Dac2a8c113e7263D17
 Multicall
 https://github.com/makerdao/multicall
 https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/utils/Multicall.sol
+外部一次调用多个函数(消耗gas)：
+Multicall2.aggregate()
+
+外部一次静态调用多个函数(只读，不消耗gas)：
+Multicall2.callStatic.aggregate()
 
 contract NFT721 is Ownable, SignerRole, IERC721, ERC721Base{}
 ```
