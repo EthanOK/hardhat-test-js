@@ -26,6 +26,18 @@ contract Counter {
         return block.number;
     }
 
+    function getBlockNumberTime()
+        external
+        view
+        returns (
+            address walletAddress,
+            string memory name,
+            string memory b64Image
+        )
+    {
+        return (walletAddress, "Not Found", "Not Found");
+    }
+
     fallback() external payable {}
 
     receive() external payable {}
