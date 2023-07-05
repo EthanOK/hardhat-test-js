@@ -5,13 +5,24 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/token/ERC1155/extensions/ERC1155Supply.sol";
 
-contract ERC1155Standard is Ownable, ERC1155Supply {
+contract BAYC_ERC1155 is Ownable, ERC1155Supply {
     using Strings for uint256;
+
+    string private constant _name = "BAYC_ERC1155";
+    string private constant _symbol = "BAYC";
     string private _baseURI = "https://boredapeyachtclub.com/api/mutants/";
     uint256 private _totalSupplyALL;
 
     function totalSupply() public view virtual returns (uint256) {
         return _totalSupplyALL;
+    }
+
+    function name() external pure returns (string memory) {
+        return _name;
+    }
+
+    function symbol() external pure returns (string memory) {
+        return _symbol;
     }
 
     constructor() ERC1155("") {
@@ -45,8 +56,6 @@ contract ERC1155Standard is Ownable, ERC1155Supply {
     ) public onlyOwner {
         _mintBatch(to, ids, amounts, data);
     }
-
-    // The following functions are overrides required by Solidity.
 
     function _beforeTokenTransfer(
         address operator,
