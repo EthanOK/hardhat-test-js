@@ -2,7 +2,7 @@ const { ethers } = require("hardhat");
 require("dotenv").config();
 
 async function getSignature() {
-  const signer = new ethers.Wallet(process.env.PRIVATE_KEY_SIGN);
+  const signer = new ethers.Wallet(process.env.PRIVATE_KEY);
 
   // https://learnblockchain.cn/article/2701
   // personal_sign 后来加入来解决这个问题。
@@ -36,8 +36,7 @@ async function getSignature() {
   //   });
 
   // 签名文本消息
-  let str =
-    "0xf6896007477ab25a659f87c4f8c5e3baac32547bf305e77aa57743046e10578b";
+  let str = "hello";
   let signPromise = signer.signMessage(str);
   signPromise.then((sign) => {
     console.log("sign string: " + sign);
