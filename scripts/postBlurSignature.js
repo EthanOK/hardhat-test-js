@@ -53,7 +53,7 @@ const postProOpenseaBlurSignature = async (buyToken, buyAddress) => {
   }
 };
 
-const postNFTGOlurSignature = async (
+const postNFTGOBlurSignature = async (
   tokenAddress,
   tokenId,
   buyerAddress,
@@ -98,6 +98,7 @@ const postNFTGOlurSignature = async (
     console.log(error);
   }
 };
+
 const getNFTGoBlurOrderInfos = async (contractAddress, tokenId) => {
   const postURL = `https://api.nftgo.io/api/v2/asset/orders?contract=${contractAddress}&tokenId=${tokenId}&limit=20`;
   const orderInfos = [];
@@ -287,7 +288,7 @@ async function main() {
   //   "0x11400ee484355c7bdf804702bf3367ebc7667e54",
   //   "0xc675897bb91797eaea7584f025a5533dbb13a000"
   // );
-  await postNFTGOlurSignature(
+  await postNFTGOBlurSignature(
     "0x11400ee484355c7bdf804702bf3367ebc7667e54",
     "1053",
     "0xc675897bb91797eaea7584f025a5533dbb13a000",
