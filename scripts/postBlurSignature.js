@@ -213,6 +213,127 @@ const getBlurAccessToken = async () => {
   }
 };
 
+const getTableData_TopCollections_Etherscan = async () => {
+  const postURL =
+    "https://etherscan.io/nft-top-contracts.aspx/GetTableData_TopCollections";
+  const data = {
+    dataTableModel: {
+      draw: 3,
+      columns: [
+        {
+          data: "n",
+          name: "",
+          searchable: true,
+          orderable: false,
+          search: { value: "", regex: false },
+        },
+        {
+          data: "address",
+          name: "",
+          searchable: true,
+          orderable: false,
+          search: { value: "", regex: false },
+        },
+        {
+          data: "tokenType",
+          name: "",
+          searchable: true,
+          orderable: false,
+          search: { value: "", regex: false },
+        },
+        {
+          data: "volume",
+          name: "",
+          searchable: true,
+          orderable: false,
+          search: { value: "", regex: false },
+        },
+        {
+          data: "changes",
+          name: "",
+          searchable: true,
+          orderable: false,
+          search: { value: "", regex: false },
+        },
+        {
+          data: "sales",
+          name: "",
+          searchable: true,
+          orderable: false,
+          search: { value: "", regex: false },
+        },
+        {
+          data: "minPrice",
+          name: "",
+          searchable: true,
+          orderable: false,
+          search: { value: "", regex: false },
+        },
+        {
+          data: "maxPrice",
+          name: "",
+          searchable: true,
+          orderable: false,
+          search: { value: "", regex: false },
+        },
+        {
+          data: "transfers",
+          name: "",
+          searchable: true,
+          orderable: false,
+          search: { value: "", regex: false },
+        },
+        {
+          data: "totalOwners",
+          name: "",
+          searchable: true,
+          orderable: false,
+          search: { value: "", regex: false },
+        },
+        {
+          data: "decTotalSupply",
+          name: "",
+          searchable: true,
+          orderable: false,
+          search: { value: "", regex: false },
+        },
+      ],
+      order: [],
+      start: 0,
+      length: 25,
+      search: { value: "", regex: false },
+      ext: { timeinterval: "21600" },
+    },
+  };
+  try {
+    // Make the POST request using the fetch API
+    const response = await fetch(postURL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+    console.log(JSON.stringify(data));
+    if (response.ok) {
+      const responseData = await response.json();
+      console.log(responseData);
+      if (responseData.errorCode != 0) {
+        return null;
+      }
+      const data = responseData.data;
+      console.log(data);
+      return data;
+    } else {
+      console.log(response.status);
+      return null;
+    }
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+};
+
 // const getNFTGoCollectionId = async (contractAddress) => {
 //   // get collection_id
 //   const getURL =
@@ -288,14 +409,15 @@ async function main() {
   //   "0x11400ee484355c7bdf804702bf3367ebc7667e54",
   //   "0xc675897bb91797eaea7584f025a5533dbb13a000"
   // );
-  await postNFTGOBlurSignature(
-    "0x11400ee484355c7bdf804702bf3367ebc7667e54",
-    "1053",
-    "0xc675897bb91797eaea7584f025a5533dbb13a000",
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ3YWxsZXRBZGRyZXNzIjoiMHhjNjc1ODk3YmI5MTc5N2VhZWE3NTg0ZjAyNWE1NTMzZGJiMTNhMDAwIiwic2lnbmF0dXJlIjoiMHg0MGU4MmQ2MDc4ZmU5MzNlMDMyODNlZmJlODQ3NzM1M2EyYTc2YjU5NzdkNmJmODliN2QwMWJkMTI2OWNhYjE2NmJlMDZmZmU3M2UzNWVhNzFlNTQyMTU3M2VjY2RhNGEwMmJkNmFiZTM2OWFhZDc2MmUzODQyZDc0YTY3YzQwNzFiIiwiaWF0IjoxNzA0Mjc0NDA4LCJleHAiOjE3MDY4NjY0MDh9.yrr0hWP5xJqewMRQ_FvgevIOrn54xcoMcb-uJew0lkU"
-  );
+  // await postNFTGOBlurSignature(
+  //   "0x11400ee484355c7bdf804702bf3367ebc7667e54",
+  //   "1053",
+  //   "0xc675897bb91797eaea7584f025a5533dbb13a000",
+  //   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ3YWxsZXRBZGRyZXNzIjoiMHhjNjc1ODk3YmI5MTc5N2VhZWE3NTg0ZjAyNWE1NTMzZGJiMTNhMDAwIiwic2lnbmF0dXJlIjoiMHg0MGU4MmQ2MDc4ZmU5MzNlMDMyODNlZmJlODQ3NzM1M2EyYTc2YjU5NzdkNmJmODliN2QwMWJkMTI2OWNhYjE2NmJlMDZmZmU3M2UzNWVhNzFlNTQyMTU3M2VjY2RhNGEwMmJkNmFiZTM2OWFhZDc2MmUzODQyZDc0YTY3YzQwNzFiIiwiaWF0IjoxNzA0Mjc0NDA4LCJleHAiOjE3MDY4NjY0MDh9.yrr0hWP5xJqewMRQ_FvgevIOrn54xcoMcb-uJew0lkU"
+  // );
   // await getBlurLoginMessage("0xc675897bb91797eaea7584f025a5533dbb13a000" );
   // await getBlurAccessToken();
+  await getTableData_TopCollections_Etherscan();
 }
 
 main();
