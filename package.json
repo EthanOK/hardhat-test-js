@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "multicall": "npx hardhat run scripts/multicall.js",
+    "multicallv3": "npx hardhat run scripts/multicall-v3.js",
     "compile": "npx hardhat compile",
     "clean": "npx hardhat clean",
     "test": "npx hardhat test",
