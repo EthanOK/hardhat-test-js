@@ -4,6 +4,8 @@ require("dotenv").config();
 const multicall3_abi = require("../json/multicall-v3-abi.json");
 const gmcq_abi = require("../json/gmcq_abi.json");
 
+const gmcq_list = require("../json/gmcq_list.json");
+
 async function main() {
   const provider = new ethers.providers.JsonRpcProvider(
     process.env.ALCHEMY_GOERLI_URL
@@ -25,16 +27,7 @@ async function main() {
   const GMCQ = new ethers.Contract(gmcq_address, gmcq_abi, wallet);
 
   const interface = GMCQ.interface;
-  let swapDatas = [
-    {
-      receiver: "0x0000000000000000000000000000000000000001",
-      tokenIds: [29],
-    },
-    {
-      receiver: "0x6278A1E803A76796a3A1f7F6344fE874ebfe94B2",
-      tokenIds: [27, 28],
-    },
-  ];
+  let swapDatas = gmcq_list;
 
   let calldatas = [];
   for (const data of swapDatas) {
