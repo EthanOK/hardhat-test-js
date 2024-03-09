@@ -1,4 +1,5 @@
 const { ethers } = require("ethers");
+const fs = require("fs");
 require("dotenv").config();
 
 const multicall3_abi = require("../json/multicall-v3-abi.json");
@@ -14,7 +15,8 @@ async function main() {
   const wallet = new ethers.Wallet(privateKey, provider);
   // 交互合约 new ethers.Contract(addressOrName, abi, providerOrSigner);
   let multicall3_address = "0xcA11bde05977b3631167028862bE2a173976CA11";
-  let gmcq_address = "0x400df737a64adDB76d30aa0C391e9196F48f93b4";
+  // 0x400df737a64adDB76d30aa0C391e9196F48f93b4 0xe99E1D7e52cDD7C692cA86283F6138C13D091545
+  let gmcq_address = "0xe99E1D7e52cDD7C692cA86283F6138C13D091545";
 
   console.log("owner:", wallet.address);
 
@@ -28,18 +30,26 @@ async function main() {
 
   const interface = GMCQ.interface;
   let swapDatas = gmcq_list;
+  console.log("array length: ", swapDatas.length);
 
   let calldatas = [];
-  for (const data of swapDatas) {
-    let tokenIds = data.tokenIds;
 
+  let tokenIds = [];
+  for (const data of swapDatas) {
+    tokenIds = tokenIds.concat(data.tokenIds);
     let calldata = interface.encodeFunctionData("swap", [
       data.receiver,
-      tokenIds,
+      data.tokenIds,
     ]);
 
     calldatas.push(calldata);
   }
+
+  console.log(
+    tokenIds.sort(function (a, b) {
+      return a - b;
+    })
+  );
 
   try {
     const calls = getParamsOfMulticall(gmcq_address, calldatas);
@@ -48,6 +58,7 @@ async function main() {
       calls,
     ]);
     console.log(calldata);
+    fs.writeFileSync("./calldata.txt", calldata);
     // // 发送交易
     // const tx = await Multicall3.aggregate(calls);
     // // 等待链上确认交易
