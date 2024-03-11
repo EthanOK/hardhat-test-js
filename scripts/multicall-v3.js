@@ -16,7 +16,7 @@ async function main() {
   // 交互合约 new ethers.Contract(addressOrName, abi, providerOrSigner);
   let multicall3_address = "0xcA11bde05977b3631167028862bE2a173976CA11";
   // 0x400df737a64adDB76d30aa0C391e9196F48f93b4 0xe99E1D7e52cDD7C692cA86283F6138C13D091545
-  let gmcq_address = "0xe99E1D7e52cDD7C692cA86283F6138C13D091545";
+  let gmcq_address = "0x12EEc80C93FCe6bb5AAB5BFa66D3C6e06CeB7AE1";
 
   console.log("owner:", wallet.address);
 
