@@ -16,7 +16,7 @@ async function main() {
   // 交互合约 new ethers.Contract(addressOrName, abi, providerOrSigner);
   let multicall3_address = "0xcA11bde05977b3631167028862bE2a173976CA11";
   // goerli: 0x28D1bC817DE02C9f105A6986eF85cB04863C3042 main: 0x1b489201D974D37DDd2FaF6756106a7651914A63
-  let ygme_address = "0x28D1bC817DE02C9f105A6986eF85cB04863C3042";
+  let ygme_address = "0x1b489201D974D37DDd2FaF6756106a7651914A63";
 
   console.log("owner:", wallet.address);
 
