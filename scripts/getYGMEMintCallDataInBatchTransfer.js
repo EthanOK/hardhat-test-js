@@ -26,23 +26,27 @@ async function main() {
     wallet
   );
 
-  const GMCQ = new ethers.Contract(ygme_address, ygme_abi, wallet);
+  const YGME = new ethers.Contract(ygme_address, ygme_abi, wallet);
 
-  const interface = GMCQ.interface;
   let swapDatas = ygme_swap_list;
   console.log("array length: ", swapDatas.length);
 
   let calldatas = [];
 
+  let totalNumber = 0;
+
   for (const data of swapDatas) {
-    let calldata = interface.encodeFunctionData("swap", [
+    let calldata = YGME.interface.encodeFunctionData("swap", [
       data.to,
       data._recommender,
       data.mintNum,
     ]);
+    totalNumber += data.mintNum;
 
     calldatas.push(calldata);
   }
+
+  console.log("totalNumber: ", totalNumber);
 
   try {
     const calls = getParamsOfMulticall(ygme_address, calldatas);
